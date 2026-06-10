@@ -9,9 +9,10 @@ evm_version = "cancun"
 
 # Celo networks (fill RPCs / keys in .env before deploying)
 [rpc_endpoints]
-celo = "${CELO_RPC_URL}"
-alfajores = "${ALFAJORES_RPC_URL}"
+celo = "${CELO_RPC_URL}"                  # Mainnet — chainId 42220 (Proof of Ship counts here)
+celo_sepolia = "${CELO_SEPOLIA_RPC_URL}"  # Testnet — chainId 11142220 (QA only)
 
+# Verification via Etherscan V2 unified API (single key, chainid param).
 [etherscan]
-celo = { key = "${CELOSCAN_API_KEY}", url = "https://api.celoscan.io/api" }
-alfajores = { key = "${CELOSCAN_API_KEY}", url = "https://api-alfajores.celoscan.io/api" }
+celo = { key = "${CELOSCAN_API_KEY}", chain = 42220, url = "https://api.etherscan.io/v2/api?chainid=42220" }
+celo_sepolia = { key = "${CELOSCAN_API_KEY}", chain = 11142220, url = "https://api.etherscan.io/v2/api?chainid=11142220" }

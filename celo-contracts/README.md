@@ -36,6 +36,11 @@ forge test -vv   # run tests (5 passing)
 - events: `BattlefieldCreated`, `TeamJoined`, `BattlefieldLeft`, `BattlefieldSettled`, `TileClaimed`, `MatchScoreClaimed`, `SeasonRolled`, `LuxBought`, `LuxWithdrawn` (reconstruct board + leaderboard from these)
 
 ## Deploy (after filling `.env`)
+Deploys `Luxeni` + `LuxeniKeepsake`.
 ```bash
-forge create src/Luxeni.sol:Luxeni --rpc-url alfajores --account <key> --verify
+# Mainnet — Celo (chainId 42220), where Proof of Ship metrics count
+forge script script/Deploy.s.sol --rpc-url celo --broadcast --verify --verifier sourcify
+
+# Testnet QA — Celo Sepolia (chainId 11142220). NOT Alfajores.
+forge script script/Deploy.s.sol --rpc-url celo_sepolia --broadcast
 ```
