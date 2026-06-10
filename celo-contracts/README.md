@@ -2,6 +2,14 @@
 
 Smart contracts for **Luxeni**, the on-chain Territory War game. See the root [`PRD.md`](../PRD.md) for the full spec.
 
+## 🟢 Live on Celo Mainnet (chainId 42220) — verified
+| Contract | Address |
+|---|---|
+| `Luxeni` | [`0x82064c90A86BA16d81Dd1fb16374D78A70d59e70`](https://celoscan.io/address/0x82064c90a86ba16d81dd1fb16374d78a70d59e70#code) |
+| `LuxeniKeepsake` | [`0x9e22Dff36a5494B6601C9ffAd57d78C26de6ca25`](https://celoscan.io/address/0x9e22dff36a5494b6601c9ffad57d78c26de6ca25#code) |
+
+Full details in [`DEPLOYMENTS.md`](./DEPLOYMENTS.md).
+
 ## Status
 - ✅ `src/Luxeni.sol` — core MVP: LUX energy economy (buy/withdraw/regen), 4-team contiguous tile claiming, anti-whale surcharge, per-battlefield tile + held-tile tracking, **battlefield lifecycle + matchmaking** (create / join / leave / settle, 3-concurrent slots, 10-min re-queue cooldown, 3h matches, team caps), and a **season layer** (4-week seasons, lazy per-player score claim of tiles-held-at-end, forfeit-on-leave, permissionless rollover, archived by `seasonId`). Events for off-chain leaderboard indexing. **12 Foundry tests passing.**
 - ✅ `src/LuxeniKeepsake.sol` — season keepsake **NFT** (ERC721). One mint per (player, finished season) with score on-chain. **Upgradeable art**: swappable `renderer` + `baseURI` until `freezeSeasonArt(season)` locks a season's art forever. **6 Foundry tests passing.**

@@ -11,7 +11,10 @@
 ![Contracts](https://img.shields.io/badge/contracts-Solidity%20%2B%20Clarity-orange)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
-> **⚠️ Honest status:** Luxeni is at the **design / early-MVP** stage. This repository currently holds the **product spec** ([`PRD.md`](./PRD.md)) and the target architecture documented below. Component status uses a legend so nothing is overclaimed.
+> **✅ Status:** The **Celo MVP contracts are LIVE & verified on Celo Mainnet** (chainId 42220):
+> `Luxeni` [`0x82064c90…59e70`](https://celoscan.io/address/0x82064c90a86ba16d81dd1fb16374d78a70d59e70#code) ·
+> `LuxeniKeepsake` [`0x9e22Dff3…6ca25`](https://celoscan.io/address/0x9e22dff36a5494b6601c9ffad57d78c26de6ca25#code).
+> Frontend + Stacks build are next. See [`PRD.md`](./PRD.md) and [`celo-contracts/DEPLOYMENTS.md`](./celo-contracts/DEPLOYMENTS.md). Component status uses a legend so nothing is overclaimed.
 >
 > **Legend:** ✅ implemented · 🚧 in progress · 🗺️ planned
 
