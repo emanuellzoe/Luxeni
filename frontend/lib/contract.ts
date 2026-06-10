@@ -31,6 +31,19 @@ export const luxeniAbi = [
     type: "function", name: "playerHeld", stateMutability: "view",
     inputs: [{ type: "uint256" }, { type: "address" }], outputs: [{ type: "uint256" }],
   },
+  {
+    type: "function", name: "battlefields", stateMutability: "view",
+    inputs: [{ type: "uint256" }],
+    outputs: [
+      { name: "status", type: "uint8" }, { name: "endTime", type: "uint40" },
+      { name: "playerCount", type: "uint16" }, { name: "winningTeam", type: "uint8" },
+      { name: "seasonId", type: "uint32" },
+    ],
+  },
+  {
+    type: "function", name: "teamPlayerCount", stateMutability: "view",
+    inputs: [{ type: "uint256" }, { type: "uint8" }], outputs: [{ type: "uint16" }],
+  },
   // writes
   { type: "function", name: "buyLux", stateMutability: "payable", inputs: [], outputs: [] },
   { type: "function", name: "createBattlefield", stateMutability: "nonpayable", inputs: [], outputs: [{ type: "uint256" }] },
