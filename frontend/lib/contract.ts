@@ -1,7 +1,9 @@
 // Live, verified Luxeni contracts on Celo Mainnet (chainId 42220).
 // (Will later switch to @luxeni/sdk; inlined here so the app is self-contained.)
-export const LUXENI = "0x82064c90A86BA16d81Dd1fb16374D78A70d59e70" as const;
-export const KEEPSAKE = "0x9e22Dff36a5494B6601C9ffAd57d78C26de6ca25" as const;
+export const LUXENI = (process.env.NEXT_PUBLIC_LUXENI ??
+  "0x82064c90A86BA16d81Dd1fb16374D78A70d59e70") as `0x${string}`;
+export const KEEPSAKE = (process.env.NEXT_PUBLIC_KEEPSAKE ??
+  "0x9e22Dff36a5494B6601C9ffAd57d78C26de6ca25") as `0x${string}`;
 
 export const luxeniAbi = [
   // reads
