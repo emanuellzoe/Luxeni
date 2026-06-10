@@ -4,7 +4,10 @@ Smart contracts for **Luxeni**, the on-chain Territory War game. See the root [`
 
 ## Status
 - ✅ `src/Luxeni.sol` — core MVP: LUX energy economy (buy/withdraw/regen), 4-team contiguous tile claiming, anti-whale surcharge, per-battlefield tile + held-tile tracking, **battlefield lifecycle + matchmaking** (create / join / leave / settle, 3-concurrent slots, 10-min re-queue cooldown, 3h matches, team caps), and a **season layer** (4-week seasons, lazy per-player score claim of tiles-held-at-end, forfeit-on-leave, permissionless rollover, archived by `seasonId`). Events for off-chain leaderboard indexing. **12 Foundry tests passing.**
-- 🗺️ TODO modules: `LuxeniKeepsake` (upgradeable-art NFT), zone tallies, UUPS upgradeability wrapping. (BattlefieldFactory + SeasonRegistry responsibilities are folded into `Luxeni.sol` for MVP cohesion.)
+- ✅ `src/LuxeniKeepsake.sol` — season keepsake **NFT** (ERC721). One mint per (player, finished season) with score on-chain. **Upgradeable art**: swappable `renderer` + `baseURI` until `freezeSeasonArt(season)` locks a season's art forever. **6 Foundry tests passing.**
+- 🗺️ TODO modules: zone tallies (zone-based win condition), UUPS upgradeability wrapping. (BattlefieldFactory + SeasonRegistry responsibilities are folded into `Luxeni.sol` for MVP cohesion.)
+
+**Total: 18 Foundry tests passing.** Built with `evm_version = cancun` (Celo L2 / OP-stack) and OpenZeppelin v5 (vendored).
 
 ## Quick start
 ```bash
@@ -28,6 +31,7 @@ forge test -vv   # run tests (5 passing)
 - battlefields: `createBattlefield() → bf`, `joinBattlefield(bf, team)`, `leaveBattlefield(bf)`, `settle(bf)`
 - play: `claimTile(uint256 bf, uint16 x, uint16 y)`
 - seasons: `claimMatchScore(bf)`, `rolloverSeason()`, views `currentSeason()`, `seasonEnd()`, `seasonScore(season, user)`
+- keepsake NFT (`LuxeniKeepsake`): `mint(season)`, `tokenURI(id)`, owner art controls `setRenderer`/`setBaseURI`/`freezeSeasonArt(season)`
 - views: `battlefields(bf)`, `getActiveSlots(user)`, `tiles(bf, idx)`, `teamTiles(bf, team)`, `teamPlayerCount(bf, team)`, `playerHeld(bf, user)`, `playerTeam(bf, user)`
 - events: `BattlefieldCreated`, `TeamJoined`, `BattlefieldLeft`, `BattlefieldSettled`, `TileClaimed`, `MatchScoreClaimed`, `SeasonRolled`, `LuxBought`, `LuxWithdrawn` (reconstruct board + leaderboard from these)
 
