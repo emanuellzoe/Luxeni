@@ -148,7 +148,7 @@ contract LuxeniTest is Test {
         vm.warp(block.timestamp + 3 hours + 1);
         game.settle(BF);
 
-        (uint8 status, , , uint8 winningTeam) = game.battlefields(BF);
+        (uint8 status, , , uint8 winningTeam, ) = game.battlefields(BF);
         assertEq(status, 2);                      // SETTLED
         assertEq(winningTeam, 1);                 // team 1 held more
     }
@@ -160,5 +160,49 @@ contract LuxeniTest is Test {
         vm.prank(alice);
         vm.expectRevert("battlefield not live");
         game.claimTile(BF, 1, 1);
+    }
+
+    function test_SeasonScoreClaim() public {
+        vm.startPrank(alice);
+        game.joinBattlefield(BF, 1);
+        game.claimTile(BF, 5, 5);
+        game.claimTile(BF, 6, 5);                 // alice holds 2 tiles
+        vm.stopPrank();
+
+        vm.warp(block.timestamp + 3 hours + 1);
+        game.settle(BF);
+
+        vm.prank(alice);
+        game.claimMatchScore(BF);
+        assertEq(game.seasonScore(1, alice), 2);  // credited to season 1
+
+        vm.prank(alice);
+        vm.expectRevert("already claimed");
+        game.claimMatchScore(BF);
+    }
+
+    function test_ForfeitOnLeaveBlocksScore() public {
+        vm.startPrank(alice);
+        game.joinBattlefield(BF, 1);
+        game.claimTile(BF, 5, 5);
+        game.leaveBattlefield(BF);                // forfeits this match's score
+        vm.stopPrank();
+
+        vm.warp(block.timestamp + 3 hours + 1);
+        game.settle(BF);
+
+        vm.prank(alice);
+        vm.expectRevert("forfeited");
+        game.claimMatchScore(BF);
+        assertEq(game.seasonScore(1, alice), 0);
+    }
+
+    function test_SeasonRollover() public {
+        assertEq(game.currentSeason(), 1);
+        vm.warp(block.timestamp + 4 weeks + 1);
+        uint256 bf2 = game.createBattlefield();   // triggers rollover
+        assertEq(game.currentSeason(), 2);
+        (, , , , uint32 seasonId) = game.battlefields(bf2);
+        assertEq(seasonId, 2);
     }
 }

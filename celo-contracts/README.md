@@ -3,8 +3,8 @@
 Smart contracts for **Luxeni**, the on-chain Territory War game. See the root [`PRD.md`](../PRD.md) for the full spec.
 
 ## Status
-- ✅ `src/Luxeni.sol` — core MVP: LUX energy economy (buy/withdraw/regen), 4-team contiguous tile claiming, anti-whale surcharge, per-battlefield tile + held-tile tracking, **battlefield lifecycle + matchmaking** (create / join / leave / settle, 3-concurrent slots, 10-min re-queue cooldown, 3h matches, team caps). Events for off-chain leaderboard indexing. **9 Foundry tests passing.**
-- 🗺️ TODO modules: `SeasonRegistry` (season scores + archive), `LuxeniKeepsake` (upgradeable-art NFT), zone tallies, UUPS upgradeability wrapping. (BattlefieldFactory responsibilities are folded into `Luxeni.sol` for MVP cohesion.)
+- ✅ `src/Luxeni.sol` — core MVP: LUX energy economy (buy/withdraw/regen), 4-team contiguous tile claiming, anti-whale surcharge, per-battlefield tile + held-tile tracking, **battlefield lifecycle + matchmaking** (create / join / leave / settle, 3-concurrent slots, 10-min re-queue cooldown, 3h matches, team caps), and a **season layer** (4-week seasons, lazy per-player score claim of tiles-held-at-end, forfeit-on-leave, permissionless rollover, archived by `seasonId`). Events for off-chain leaderboard indexing. **12 Foundry tests passing.**
+- 🗺️ TODO modules: `LuxeniKeepsake` (upgradeable-art NFT), zone tallies, UUPS upgradeability wrapping. (BattlefieldFactory + SeasonRegistry responsibilities are folded into `Luxeni.sol` for MVP cohesion.)
 
 ## Quick start
 ```bash
@@ -27,8 +27,9 @@ forge test -vv   # run tests (5 passing)
 - energy: `buyLux() payable`, `withdrawLux(uint256)`, `energyOf(address) → (free, paid)`
 - battlefields: `createBattlefield() → bf`, `joinBattlefield(bf, team)`, `leaveBattlefield(bf)`, `settle(bf)`
 - play: `claimTile(uint256 bf, uint16 x, uint16 y)`
+- seasons: `claimMatchScore(bf)`, `rolloverSeason()`, views `currentSeason()`, `seasonEnd()`, `seasonScore(season, user)`
 - views: `battlefields(bf)`, `getActiveSlots(user)`, `tiles(bf, idx)`, `teamTiles(bf, team)`, `teamPlayerCount(bf, team)`, `playerHeld(bf, user)`, `playerTeam(bf, user)`
-- events: `BattlefieldCreated`, `TeamJoined`, `BattlefieldLeft`, `BattlefieldSettled`, `TileClaimed`, `LuxBought`, `LuxWithdrawn` (reconstruct board + leaderboard from these)
+- events: `BattlefieldCreated`, `TeamJoined`, `BattlefieldLeft`, `BattlefieldSettled`, `TileClaimed`, `MatchScoreClaimed`, `SeasonRolled`, `LuxBought`, `LuxWithdrawn` (reconstruct board + leaderboard from these)
 
 ## Deploy (after filling `.env`)
 ```bash

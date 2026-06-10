@@ -2,12 +2,12 @@
 pragma solidity ^0.8.24;
 
 /// @title Luxeni — On-chain Territory War (core MVP)
-/// @notice Energy (LUX) economy + 4-team contiguous tile claiming across battlefields.
+/// @notice Energy (LUX) economy + 4-team contiguous tile claiming across battlefields,
+///         with a 4-week season layer that ranks players by tiles held at match end.
 ///         Every `claimTile` is one on-chain transaction — the source of organic activity.
-/// @dev    Battlefield lifecycle + matchmaking are folded into this contract for MVP
-///         cohesion (claimTile must read battlefield state on the hot path). Not yet
-///         included (see PRD.md): SeasonRegistry, LuxeniKeepsake (NFT), zone tallies,
-///         UUPS upgradeability wrapping. Constructor-based for now; wrap as UUPS later.
+/// @dev    Battlefield lifecycle, matchmaking, and the season registry are folded into this
+///         contract for MVP cohesion. Not yet included (see PRD.md): LuxeniKeepsake (NFT),
+///         zone tallies, UUPS upgradeability wrapping. Constructor-based for now.
 contract Luxeni {
     // ------------------------------- Constants -------------------------------
     uint8   public constant TEAMS          = 4;
@@ -26,54 +26,71 @@ contract Luxeni {
     uint256 public constant AW_FREE        = 20;       // claims before surcharge kicks in
 
     // Battlefield / matchmaking
-    uint256 public constant DURATION       = 3 hours;  // match length
-    uint8   public constant MAX_CONCURRENT = 3;        // battlefields a user can be in at once
-    uint256 public constant REQUEUE_COOLDOWN = 10 minutes; // after voluntarily leaving
-    uint16  public constant TEAM_CAP       = 25;       // players per team (=> ~100 / battlefield)
+    uint256 public constant DURATION         = 3 hours;  // match length
+    uint8   public constant MAX_CONCURRENT   = 3;        // battlefields a user can be in at once
+    uint256 public constant REQUEUE_COOLDOWN = 10 minutes;
+    uint16  public constant TEAM_CAP         = 25;       // players per team (~100 / battlefield)
 
     uint8   public constant LIVE    = 1;
     uint8   public constant SETTLED = 2;
 
+    // Seasons
+    uint256 public constant SEASON_DURATION = 4 weeks;
+
     // --------------------------------- Types ---------------------------------
     struct Tile { uint8 team; address owner; }         // team 0 == empty
-    struct Battlefield { uint8 status; uint40 endTime; uint16 playerCount; uint8 winningTeam; }
+    struct Battlefield {
+        uint8  status;        // 1 LIVE, 2 SETTLED
+        uint40 endTime;
+        uint16 playerCount;
+        uint8  winningTeam;
+        uint32 seasonId;
+    }
 
     // -------------------------------- Storage --------------------------------
-    // Free regenerating energy — NOT withdrawable (no native backing).
-    mapping(address => uint256) public freeEnergy;
+    // Energy
+    mapping(address => uint256) public freeEnergy;     // regenerating, NOT withdrawable
     mapping(address => uint256) public lastRegen;
-    // Purchased LUX — withdrawable 1:1.
-    mapping(address => uint256) public paidLux;
+    mapping(address => uint256) public paidLux;        // purchased, withdrawable 1:1
 
-    // Anti-whale, per-user across ALL battlefields.
+    // Anti-whale (per-user across all battlefields)
     mapping(address => uint256) public awWindowStart;
     mapping(address => uint256) public awCount;
 
     // Battlefields
     uint256 public battlefieldCount;
     mapping(uint256 => Battlefield) public battlefields;
-    mapping(uint256 => mapping(uint8 => uint16)) public teamPlayerCount; // bf => team => players
+    mapping(uint256 => mapping(uint8 => uint16)) public teamPlayerCount;
 
     // Per-battlefield board state
-    mapping(uint256 => mapping(uint256 => Tile))    public tiles;       // bf => tileIndex => Tile
-    mapping(uint256 => mapping(address => uint8))   public playerTeam;  // bf => user => team (1..4)
-    mapping(uint256 => mapping(uint8 => uint256))   public teamTiles;   // bf => team => tiles held
-    mapping(uint256 => mapping(address => uint256)) public playerHeld;  // bf => user => tiles held (rank input)
+    mapping(uint256 => mapping(uint256 => Tile))    public tiles;
+    mapping(uint256 => mapping(address => uint8))   public playerTeam;
+    mapping(uint256 => mapping(uint8 => uint256))   public teamTiles;
+    mapping(uint256 => mapping(address => uint256)) public playerHeld;
 
-    // Matchmaking: up to 3 concurrent battlefield slots per user + re-queue cooldown
+    // Matchmaking
     mapping(address => uint256[3]) internal activeSlots;
     mapping(address => uint256) public cooldownEnd;
+
+    // Seasons
+    uint32  public currentSeason;
+    uint256 public seasonEnd;
+    mapping(uint32 => mapping(address => uint256)) public seasonScore;  // season => user => points
+    mapping(uint256 => mapping(address => bool))   public scoreClaimed; // bf => user => credited?
+    mapping(uint256 => mapping(address => bool))   public forfeited;    // bf => user => left → no score
 
     // -------------------------------- Events ---------------------------------
     event LuxBought(address indexed user, uint256 nativeIn, uint256 luxOut);
     event LuxWithdrawn(address indexed user, uint256 luxIn, uint256 nativeOut);
-    event BattlefieldCreated(uint256 indexed bf, uint40 endTime);
+    event BattlefieldCreated(uint256 indexed bf, uint40 endTime, uint32 seasonId);
     event TeamJoined(uint256 indexed bf, address indexed user, uint8 team);
     event BattlefieldLeft(uint256 indexed bf, address indexed user);
     event BattlefieldSettled(uint256 indexed bf, uint8 winningTeam);
     event TileClaimed(
         uint256 indexed bf, address indexed user, uint16 x, uint16 y, uint8 team, uint8 prevTeam
     );
+    event SeasonRolled(uint32 indexed newSeason, uint256 endTime);
+    event MatchScoreClaimed(uint256 indexed bf, address indexed user, uint32 indexed season, uint256 points);
 
     // ------------------------------ Reentrancy --------------------------------
     uint256 private _lock = 1;
@@ -82,6 +99,11 @@ contract Luxeni {
         _lock = 2;
         _;
         _lock = 1;
+    }
+
+    constructor() {
+        currentSeason = 1;
+        seasonEnd = block.timestamp + SEASON_DURATION;
     }
 
     // -------------------------------- Energy ----------------------------------
@@ -98,7 +120,7 @@ contract Luxeni {
             uint256 e = freeEnergy[u] + gained;
             if (e > REGEN_CAP) e = REGEN_CAP;
             freeEnergy[u] = e;
-            lastRegen[u] = last + gained * REGEN_PERIOD; // keep remainder
+            lastRegen[u] = last + gained * REGEN_PERIOD;
         }
     }
 
@@ -127,22 +149,48 @@ contract Luxeni {
         emit LuxWithdrawn(msg.sender, amount, nativeOut);
     }
 
-    // ----------------------------- Battlefields -------------------------------
+    // -------------------------------- Seasons ---------------------------------
 
-    /// @notice Create a new battlefield (the frontend/factory calls this on demand).
-    function createBattlefield() external returns (uint256 bf) {
-        bf = ++battlefieldCount;
-        battlefields[bf] = Battlefield({
-            status: LIVE,
-            endTime: uint40(block.timestamp + DURATION),
-            playerCount: 0,
-            winningTeam: 0
-        });
-        emit BattlefieldCreated(bf, uint40(block.timestamp + DURATION));
+    /// @notice Advance to the next season once the current one has ended (permissionless).
+    function rolloverSeason() public {
+        if (block.timestamp >= seasonEnd) {
+            currentSeason += 1;
+            seasonEnd = block.timestamp + SEASON_DURATION;
+            emit SeasonRolled(currentSeason, seasonEnd);
+        }
     }
 
-    /// @notice Join a battlefield on a team (1..4). Enforces capacity, 3-concurrent cap,
-    ///         and the re-queue cooldown. Auto-frees slots whose battlefield has ended.
+    /// @notice After a battlefield is settled, credit your held tiles to that season's score.
+    ///         Lazy + per-player so settlement never iterates participants. One claim per bf.
+    function claimMatchScore(uint256 bf) external {
+        require(battlefields[bf].status == SETTLED, "not settled");
+        require(!scoreClaimed[bf][msg.sender], "already claimed");
+        require(!forfeited[bf][msg.sender], "forfeited");
+        uint256 held = playerHeld[bf][msg.sender];
+        require(held > 0, "nothing to claim");
+
+        scoreClaimed[bf][msg.sender] = true;
+        uint32 s = battlefields[bf].seasonId;
+        seasonScore[s][msg.sender] += held;
+        emit MatchScoreClaimed(bf, msg.sender, s, held);
+    }
+
+    // ----------------------------- Battlefields -------------------------------
+
+    function createBattlefield() external returns (uint256 bf) {
+        rolloverSeason(); // ensure new battlefields belong to the live season
+        bf = ++battlefieldCount;
+        uint40 end = uint40(block.timestamp + DURATION);
+        battlefields[bf] = Battlefield({
+            status: LIVE,
+            endTime: end,
+            playerCount: 0,
+            winningTeam: 0,
+            seasonId: currentSeason
+        });
+        emit BattlefieldCreated(bf, end, currentSeason);
+    }
+
     function joinBattlefield(uint256 bf, uint8 team) external {
         Battlefield memory b = battlefields[bf];
         require(b.status == LIVE && block.timestamp < b.endTime, "battlefield not live");
@@ -154,17 +202,17 @@ contract Luxeni {
         _occupySlot(msg.sender, bf);
 
         playerTeam[bf][msg.sender] = team;
+        forfeited[bf][msg.sender] = false; // allow scoring again if rejoining
         teamPlayerCount[bf][team] += 1;
         battlefields[bf].playerCount = b.playerCount + 1;
         emit TeamJoined(bf, msg.sender, team);
     }
 
-    /// @notice Leave a battlefield voluntarily; frees a slot and starts the re-queue cooldown.
-    ///         Tiles already claimed stay with the team; the player simply exits the roster.
     function leaveBattlefield(uint256 bf) external {
         uint8 team = playerTeam[bf][msg.sender];
         require(team != 0, "not in battlefield");
         playerTeam[bf][msg.sender] = 0;
+        forfeited[bf][msg.sender] = true; // leaving forfeits season score from this match
         teamPlayerCount[bf][team] -= 1;
         Battlefield memory b = battlefields[bf];
         if (b.playerCount > 0) battlefields[bf].playerCount = b.playerCount - 1;
@@ -173,8 +221,6 @@ contract Luxeni {
         emit BattlefieldLeft(bf, msg.sender);
     }
 
-    /// @notice Settle a battlefield after it ends. Winner = team holding the most tiles.
-    ///         Permissionless — anyone can trigger settlement once time is up.
     function settle(uint256 bf) external {
         Battlefield memory b = battlefields[bf];
         require(b.status == LIVE, "not live");
@@ -193,8 +239,6 @@ contract Luxeni {
 
     // ------------------------------- Gameplay ---------------------------------
 
-    /// @notice Claim a tile for your team in a live battlefield. Must be contiguous with
-    ///         your team's territory (except the team's first/seed tile). One tx per claim.
     function claimTile(uint256 bf, uint16 x, uint16 y) external {
         Battlefield memory b = battlefields[bf];
         require(b.status == LIVE && block.timestamp < b.endTime, "battlefield not live");
@@ -227,8 +271,6 @@ contract Luxeni {
 
     // ------------------------------- Internals --------------------------------
 
-    /// @dev Occupy a free concurrency slot, enforcing MAX_CONCURRENT live battlefields.
-    ///      Slots whose battlefield has settled/expired are treated as free. O(3).
     function _occupySlot(address u, uint256 bf) internal {
         uint256[3] storage s = activeSlots[u];
         uint256 freeIdx = type(uint256).max;
@@ -258,12 +300,10 @@ contract Luxeni {
         }
     }
 
-    /// @notice The user's three concurrency slots (battlefield ids; 0 = empty).
     function getActiveSlots(address u) external view returns (uint256[3] memory) {
         return activeSlots[u];
     }
 
-    /// @dev Up to 4 neighbour reads — O(1), never a loop over the board.
     function _hasAdjacentTeam(uint256 bf, uint16 x, uint16 y, uint8 team) internal view returns (bool) {
         if (x > 0          && tiles[bf][uint256(y) * WIDTH + (x - 1)].team == team) return true;
         if (x + 1 < WIDTH  && tiles[bf][uint256(y) * WIDTH + (x + 1)].team == team) return true;
@@ -272,7 +312,6 @@ contract Luxeni {
         return false;
     }
 
-    /// @dev Per-user anti-whale: first AW_FREE claims per window are base price; then +1 each.
     function _surcharge(address u) internal returns (uint256 extra) {
         if (block.timestamp >= awWindowStart[u] + AW_WINDOW) {
             awWindowStart[u] = block.timestamp;
@@ -283,7 +322,6 @@ contract Luxeni {
         awCount[u] = c + 1;
     }
 
-    /// @dev Spend free energy first, then purchased LUX.
     function _spend(address u, uint256 cost) internal {
         _accrue(u);
         uint256 free = freeEnergy[u];
