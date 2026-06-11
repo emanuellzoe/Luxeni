@@ -1,215 +1,381 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { parseEther } from "viem";
-import {
-  useAccount, useConnect, useDisconnect, useReadContract, useReadContracts,
-  useWriteContract, useWaitForTransactionReceipt,
-} from "wagmi";
-import { celo } from "wagmi/chains";
-import { injected } from "wagmi/connectors";
-import { useQueryClient } from "@tanstack/react-query";
-import { LUXENI, luxeniAbi, WIDTH, VIEW, TEAM_COLORS } from "../lib/contract";
+import Link from "next/link";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAccount, useConnect } from "wagmi";
+import { useWalletUI } from "./providers";
+import { Reveal } from "./components/Reveal";
+import { LUXENI, KEEPSAKE, CELOSCAN, TEAM_COLORS } from "../lib/contract";
 
-const CAPACITY = 100;
-
-const card: React.CSSProperties = {
-  background: "#141823", border: "1px solid #232838", borderRadius: 16,
-  padding: 18, maxWidth: 440, margin: "0 auto 16px",
-};
-const btn = (bg: string): React.CSSProperties => ({
-  padding: "10px 14px", borderRadius: 10, border: "none", background: bg,
-  color: "#fff", fontWeight: 600, cursor: "pointer",
+/* Deterministic 8×8 war-mosaic for the relic centerpiece (no randomness → no hydration drift). */
+const RELIC_TILES = Array.from({ length: 64 }, (_, i) => {
+  const x = i % 8, y = Math.floor(i / 8);
+  const quadrant = (x < 4 ? 0 : 1) + (y < 4 ? 0 : 2); // 0..3
+  const noise = (i * 37 + 11) % 17;
+  if (noise < 3) return 0;                            // scorched/empty
+  if (noise < 6) return ((quadrant + 1) % 4) + 1;     // contested frontier
+  return quadrant + 1;                                // home banner
 });
 
-export default function App() {
-  const { address, isConnected, chainId } = useAccount();
-  const { connect, isPending } = useConnect();
-  const { disconnect } = useDisconnect();
-  const qc = useQueryClient();
+export default function Landing() {
+  const router = useRouter();
+  const { isConnected } = useAccount();
+  const { connect, connectors } = useConnect();
+  const { openConnect } = useWalletUI();
 
+  // Inside MiniPay the wallet is already there — conscript silently, march to the war room.
+  // Uses the CONFIGURED injected connector (a fresh injected() would race wagmi reconnect).
   useEffect(() => {
     const eth = typeof window !== "undefined" ? (window as any).ethereum : undefined;
-    if (eth?.isMiniPay && !isConnected) connect({ connector: injected() });
-  }, [isConnected, connect]);
-
-  const { writeContract, data: txHash, isPending: txPending, error: writeError } = useWriteContract();
-  const { isLoading: confirming, isSuccess: confirmed, error: receiptError } = useWaitForTransactionReceipt({ hash: txHash });
-  // refetch on confirm, then again after a beat to beat RPC read-after-write lag
-  useEffect(() => {
-    if (!confirmed) return;
-    qc.invalidateQueries();
-    const t = setTimeout(() => qc.invalidateQueries(), 2500);
-    return () => clearTimeout(t);
-  }, [confirmed, qc]);
-  const busy = txPending || confirming;
-  const errMsg =
-    (writeError as any)?.shortMessage || (receiptError as any)?.shortMessage ||
-    (writeError as any)?.message || (receiptError as any)?.message || "";
-  const write = (functionName: string, args: any[] = [], value?: bigint) =>
-    writeContract({ address: LUXENI, abi: luxeniAbi, functionName, args, value, chainId: celo.id } as any);
-
-  // --- reads ---
-  const { data: season } = useReadContract({ address: LUXENI, abi: luxeniAbi, functionName: "currentSeason", chainId: celo.id });
-  const { data: count } = useReadContract({ address: LUXENI, abi: luxeniAbi, functionName: "battlefieldCount", chainId: celo.id });
-  const { data: energy } = useReadContract({
-    address: LUXENI, abi: luxeniAbi, functionName: "energyOf",
-    args: address ? [address] : undefined, chainId: celo.id, query: { enabled: !!address },
-  });
-
-  // matchmaking candidate = latest battlefield
-  const candidate = count ? Number(count) : 0;
-  const { data: bfInfo } = useReadContract({
-    address: LUXENI, abi: luxeniAbi, functionName: "battlefields",
-    args: candidate ? [BigInt(candidate)] : undefined, chainId: celo.id, query: { enabled: !!candidate },
-  });
-  const teamCalls = useMemo(() => (candidate ? [1, 2, 3, 4].map((t) => ({
-    address: LUXENI, abi: luxeniAbi, functionName: "teamPlayerCount", args: [BigInt(candidate), t], chainId: celo.id,
-  })) : []), [candidate]);
-  const { data: teamCounts } = useReadContracts({ contracts: teamCalls as any, query: { enabled: teamCalls.length > 0 } });
-
-  // is the latest battlefield joinable (live + has space)?
-  const now = Math.floor(Date.now() / 1000);
-  const status = bfInfo ? Number((bfInfo as any)[0]) : 0;
-  const endTime = bfInfo ? Number((bfInfo as any)[1]) : 0;
-  const players = bfInfo ? Number((bfInfo as any)[2]) : 0;
-  const joinable = candidate >= 1 && status === 1 && now < endTime && players < CAPACITY;
-  const smallestTeam = useMemo(() => {
-    if (!teamCounts) return 1;
-    let best = 1, min = Infinity;
-    for (let t = 0; t < 4; t++) {
-      const c = Number((teamCounts[t]?.result as bigint | undefined) ?? 0n);
-      if (c < min) { min = c; best = t + 1; }
+    const inj = connectors.find((c) => c.id === "injected");
+    if (eth?.isMiniPay && !isConnected && inj) {
+      connect({ connector: inj }, { onSuccess: () => router.push("/app") });
     }
-    return best;
-  }, [teamCounts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // which battlefield am I viewing/in
-  const [bf, setBf] = useState<number>(0);
-  useEffect(() => { if (joinable && bf === 0) setBf(candidate); }, [joinable, candidate, bf]);
-  const { data: myTeam } = useReadContract({
-    address: LUXENI, abi: luxeniAbi, functionName: "playerTeam",
-    args: address && bf ? [BigInt(bf), address] : undefined, chainId: celo.id, query: { enabled: !!address && !!bf },
-  });
-  const joined = Number(myTeam ?? 0) !== 0;
-
-  // grid window
-  const tileCalls = useMemo(() => {
-    if (!bf) return [];
-    const c = [];
-    for (let y = 0; y < VIEW; y++) for (let x = 0; x < VIEW; x++)
-      c.push({ address: LUXENI, abi: luxeniAbi, functionName: "tiles", args: [BigInt(bf), BigInt(y * WIDTH + x)], chainId: celo.id });
-    return c as any;
-  }, [bf]);
-  const { data: tiles } = useReadContracts({ contracts: tileCalls, query: { enabled: tileCalls.length > 0 } });
-
-  const wrongChain = isConnected && chainId !== celo.id;
-  const [amount, setAmount] = useState("0.01");
-
-  const findMatch = () => {
-    if (joinable) { setBf(candidate); write("joinBattlefield", [BigInt(candidate), smallestTeam]); }
-    else { write("createBattlefield"); } // no live match → start one; tap again to join once it's live
-  };
+  const enterBattle = () => (isConnected ? router.push("/app") : openConnect());
 
   return (
-    <main style={{ padding: "32px 16px 64px" }}>
-      <div style={{ textAlign: "center", marginBottom: 20 }}>
-        <h1 style={{ fontSize: 26, margin: 0 }}>🎨 Luxeni</h1>
-        <p style={{ color: "#8b93a7", marginTop: 4 }}>Territory War · Celo · Season #{season?.toString() ?? "…"}</p>
-      </div>
-
-      {!isConnected ? (
-        <div style={card}>
-          <button onClick={() => connect({ connector: injected() })} disabled={isPending} style={{ ...btn("#5b8cff"), width: "100%", padding: 14 }}>
-            {isPending ? "Connecting…" : "Connect Wallet"}
-          </button>
+    <main>
+      {/* ============ I. HERO ============ */}
+      <section className="hero" id="top">
+        <div className="fx-glow" />
+        <div className="fx-fog f1" />
+        <div className="fx-fog f2" />
+        <div className="fx-ring" />
+        <div className="fx-mountains">
+          <div className="ember" />
+          <div className="ridge r1" />
+          <div className="ridge r2" />
+          <div className="ridge r3" />
         </div>
-      ) : (
-        <>
-          {errMsg && (
-            <div style={{ ...card, borderColor: "#ff5b6e", background: "#2a1518", color: "#ffb3bb" }}>
-              ⚠️ {errMsg.replace(/^.*reverted with the following reason:\s*/s, "").slice(0, 160)}
-            </div>
-          )}
-          <div style={card}>
-            <Row label="Wallet" value={`${address!.slice(0, 6)}…${address!.slice(-4)}`} />
-            <Row label="Network" value={wrongChain ? "⚠️ Switch to Celo" : "Celo Mainnet"} />
-            <Row label="Energy (free/paid)" value={energy ? `${energy[0]} / ${energy[1]} LUX` : "…"} />
-            <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-              <input value={amount} onChange={(e) => setAmount(e.target.value)} inputMode="decimal"
-                style={{ flex: 1, padding: 10, borderRadius: 10, border: "1px solid #2c3245", background: "#0e1118", color: "#fff" }} />
-              <button disabled={busy} onClick={() => write("buyLux", [], parseEther(amount || "0"))} style={btn("#36d399")}>Buy LUX</button>
-            </div>
-            <button onClick={() => disconnect()} style={{ ...btn("transparent"), border: "1px solid #2c3245", color: "#8b93a7", width: "100%", marginTop: 10 }}>Disconnect</button>
-          </div>
+        <div className="fx-fog f3" />
+        <div className="fx-vignette" />
+        <div className="fx-noise" />
 
-          {/* matchmaking */}
-          {!joined && (
-            <div style={card}>
-              <p style={{ color: "#8b93a7", margin: "0 0 10px" }}>
-                {joinable
-                  ? `A live battle is on (#${candidate}, ${players}/${CAPACITY} players · 4 teams). Join the smallest team to keep it fair.`
-                  : "No live battle right now — start one and others will join you."}
+        <div className="hero-content">
+          <p className="kicker hero-kicker">On-chain Territory War · Celo</p>
+          <h1 className="hero-title">LUXENI</h1>
+          <p className="hero-tagline">
+            Four factions. One battlefield. Spend energy to claim the land tile by tile —
+            <b> every claim is a real transaction on Celo</b>. Hold your ground until the
+            horn sounds, and let the territory crown its ruler.
+          </p>
+
+          <div className="trinity">
+            <div className="trinity-item">
+              <span className="trinity-numeral">I</span>
+              <span className="trinity-name">Claim the Land</span>
+              <p className="trinity-text">
+                March from your faction&apos;s frontier — each adjacent tile seized is one
+                on-chain transaction.
               </p>
-              {teamCounts && (
-                <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
-                  {[1, 2, 3, 4].map((t) => (
-                    <div key={t} style={{ flex: 1, textAlign: "center", padding: "6px 0", borderRadius: 8, background: "#0e1118", border: `1px solid ${TEAM_COLORS[t]}` }}>
-                      <div style={{ color: TEAM_COLORS[t], fontWeight: 700 }}>T{t}</div>
-                      <div style={{ fontSize: 12, color: "#8b93a7" }}>{Number((teamCounts[t - 1]?.result as bigint) ?? 0n)}</div>
-                    </div>
+              <button className="btn-outline small" onClick={enterBattle}>Enter Battle</button>
+            </div>
+            <div className="trinity-item">
+              <span className="trinity-numeral">II</span>
+              <span className="trinity-name">Defend the Realm</span>
+              <p className="trinity-text">
+                A war lasts three hours. Enemies can wrest your tiles away — hold the line,
+                or take them back.
+              </p>
+              <Link href="/#how" className="btn-outline small">How It Works</Link>
+            </div>
+            <div className="trinity-item">
+              <span className="trinity-numeral">III</span>
+              <span className="trinity-name">Rule the Season</span>
+              <p className="trinity-text">
+                Tiles still held when each battle ends feed your four-week season rank —
+                and your Keepsake.
+              </p>
+              <Link href="/#roadmap" className="btn-outline small">The Campaign</Link>
+            </div>
+          </div>
+        </div>
+
+        <a href="#world" className="scroll-cue" aria-label="Scroll down">↓</a>
+      </section>
+
+      {/* ============ II. CINEMATIC INTRO ============ */}
+      <section className="section intro-section" id="world">
+        <div className="fx-shafts" />
+        <div className="fx-noise" />
+        <div className="section-inner">
+          <Reveal>
+            <div className="section-head">
+              <p className="kicker">A War Writ in Stone</p>
+              <h2 className="section-title font-display">Enter the World of Luxeni</h2>
+              <span className="ornament">✦</span>
+            </div>
+          </Reveal>
+
+          <Reveal delay={120}>
+            <div className="relic-stage">
+              <div className="relic">
+                <div className="halo" />
+                <div className="frame" />
+                <div className="frame inner" />
+                <div className="board" aria-hidden>
+                  {RELIC_TILES.map((t, i) => (
+                    <span
+                      key={i}
+                      style={{
+                        background: t === 0 ? "rgba(255,255,255,0.045)" : `${TEAM_COLORS[t]}55`,
+                        animationDelay: `${(i % 9) * 0.5}s`,
+                      }}
+                    />
                   ))}
                 </div>
-              )}
-              <button disabled={busy} onClick={findMatch} style={{ ...btn(joinable ? "#5b8cff" : "#f5a524"), width: "100%", padding: 14 }}>
-                {busy ? "…" : joinable ? `⚔️ Find Match — Join Team ${smallestTeam}` : "➕ Start a Battle"}
-              </button>
-            </div>
-          )}
-
-          {/* grid */}
-          {joined && (
-            <div style={{ ...card, padding: 12 }}>
-              <p style={{ margin: "0 0 10px", color: "#8b93a7" }}>
-                Battle #{bf} · You're <b style={{ color: TEAM_COLORS[Number(myTeam)] }}>Team {Number(myTeam)}</b>. Other colors = enemies. Tap an adjacent tile to claim (orthogonal only).
-              </p>
-              {energy && energy[0] + energy[1] === 0n && (
-                <p style={{ margin: "0 0 10px", color: "#f5a524", fontSize: 13 }}>
-                  ⚡ Out of energy — Buy LUX above (energy is shared across all your battles; it refills 1/20min).
-                </p>
-              )}
-              <div style={{ display: "grid", gridTemplateColumns: `repeat(${VIEW}, 1fr)`, gap: 3 }}>
-                {Array.from({ length: VIEW * VIEW }).map((_, i) => {
-                  const x = i % VIEW, y = Math.floor(i / VIEW);
-                  const res = tiles?.[i]?.result as readonly [number, string] | undefined;
-                  const team = res ? Number(res[0]) : 0;
-                  return (
-                    <button key={i} title={`(${x},${y})`} disabled={busy}
-                      onClick={() => write("claimTile", [BigInt(bf), x, y])}
-                      style={{ aspectRatio: "1", border: "none", borderRadius: 4, cursor: "pointer", background: TEAM_COLORS[team] }} />
-                  );
-                })}
               </div>
-              <p style={{ color: "#5b6273", fontSize: 12, textAlign: "center", marginTop: 8 }}>
-                10×10 window of the 80×80 board{busy ? " · confirming…" : ""}
+              <p className="relic-caption">The Battlefield · 80 × 80 · Four Banners · One Crown</p>
+            </div>
+          </Reveal>
+
+          <Reveal delay={160}>
+            <p className="intro-lore">
+              “Beneath a darkened sky, four banners contest a single field of 6,400 tiles.
+              There are no dice and no fate here — only energy, position, and the will to
+              hold. One deposit arms you for hundreds of claims; what your hand seizes,
+              your hand must defend.”
+            </p>
+          </Reveal>
+
+          <Reveal delay={200}>
+            <p className="section-blurb" style={{ margin: "40px auto 0", textAlign: "center" }}>
+              Luxeni is a mobile-first, multiplayer territory war — built as a MiniApp for
+              MiniPay on Celo, with a parallel Clarity build coming to Stacks. Join one of
+              four factions, expand only where your territory touches, and let the final
+              map decide the victor.
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      <div className="hairline" />
+
+      {/* ============ III. FEATURES ============ */}
+      <section className="section" id="features">
+        <div className="section-inner">
+          <Reveal>
+            <div className="section-head">
+              <p className="kicker">The Arsenal</p>
+              <h2 className="section-title font-display">Instruments of War</h2>
+              <span className="ornament">✦</span>
+            </div>
+          </Reveal>
+
+          <div className="cards">
+            <Reveal>
+              <article className="card">
+                <div className="card-numeral">I</div>
+                <h3 className="card-title">The Energy of War — LUX</h3>
+                <p className="card-text">
+                  LUX is the war&apos;s lifeblood — a <b>non-transferable energy credit</b>,
+                  never a token of speculation. It regenerates free (<b>1 LUX / 20 min</b>),
+                  or <b>1 CELO buys 1,000 LUX</b> when the front line burns. Unused LUX
+                  withdraws back to CELO at 1:1 — you pay to build, never to wager.
+                </p>
+              </article>
+            </Reveal>
+            <Reveal delay={120}>
+              <article className="card">
+                <div className="card-numeral">II</div>
+                <h3 className="card-title">Four Factions, One Field</h3>
+                <p className="card-text">
+                  Up to <b>~100 warriors</b> split across four banners on an
+                  <b> 80×80 battlefield</b>. Expansion is contiguous — you may only claim
+                  tiles adjacent to your faction&apos;s ground. Empty land costs <b>1 LUX</b>;
+                  tearing a tile from an enemy costs <b>3</b>.
+                </p>
+              </article>
+            </Reveal>
+            <Reveal delay={240}>
+              <article className="card">
+                <div className="card-numeral">III</div>
+                <h3 className="card-title">Seasons &amp; Keepsakes</h3>
+                <p className="card-text">
+                  Every <b>four weeks</b> a season crowns its rulers — your rank is the
+                  territory you <b>still hold</b> when each battle ends. Top 100 on the
+                  leaderboard, four faction standings, and a generative <b>Keepsake NFT</b>
+                  that seals the final map forever.
+                </p>
+              </article>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      <div className="hairline" />
+
+      {/* ============ IV. HOW IT WORKS ============ */}
+      <section className="section" id="how">
+        <div className="section-inner">
+          <Reveal>
+            <div className="section-head">
+              <p className="kicker">The Rite of War</p>
+              <h2 className="section-title font-display">How a War Is Waged</h2>
+              <span className="ornament">✦</span>
+            </div>
+          </Reveal>
+
+          <div className="steps">
+            <Reveal>
+              <div className="step">
+                <div className="step-numeral">I</div>
+                <div>
+                  <h3 className="step-title">Connect</h3>
+                  <p className="step-text">
+                    Bind your wallet — inside <b>MiniPay</b> you are conscripted
+                    automatically. One deposit of CELO funds <b>hundreds of claims</b>.
+                  </p>
+                </div>
+              </div>
+            </Reveal>
+            <Reveal>
+              <div className="step">
+                <div className="step-numeral">II</div>
+                <div>
+                  <h3 className="step-title">Enlist</h3>
+                  <p className="step-text">
+                    Find a match — you join the live battlefield on its <b>smallest banner</b>
+                    to keep the war fair, or raise a new battlefield and let others rally to you.
+                  </p>
+                </div>
+              </div>
+            </Reveal>
+            <Reveal>
+              <div className="step">
+                <div className="step-numeral">III</div>
+                <div>
+                  <h3 className="step-title">Claim</h3>
+                  <p className="step-text">
+                    Spend LUX to seize tiles adjacent to your faction&apos;s ground —
+                    <b> 1 LUX</b> for empty land, <b>3 LUX</b> to wrest it from an enemy.
+                    <b> Every claim is one real transaction on Celo.</b>
+                  </p>
+                </div>
+              </div>
+            </Reveal>
+            <Reveal>
+              <div className="step">
+                <div className="step-numeral">IV</div>
+                <div>
+                  <h3 className="step-title">Hold</h3>
+                  <p className="step-text">
+                    When the third hour sounds, the map is judged. The faction holding the
+                    most land takes the war — and the tiles in <b>your</b> hand feed your
+                    season rank.
+                  </p>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      <div className="hairline" />
+
+      {/* ============ V. ROADMAP ============ */}
+      <section className="section" id="roadmap">
+        <div className="section-inner">
+          <Reveal>
+            <div className="section-head">
+              <p className="kicker">The Campaign</p>
+              <h2 className="section-title font-display">Roadmap</h2>
+              <span className="ornament">✦</span>
+            </div>
+          </Reveal>
+
+          <Reveal>
+            <div className="roadmap">
+              <div className="phase live">
+                <div className="phase-numeral">I</div>
+                <span className="phase-flag">Live Now</span>
+                <h3 className="phase-title">The Celo Campaign</h3>
+                <p className="phase-text">
+                  Energy economy, battlefields, four-faction war, matchmaking and season
+                  ranks — contracts live &amp; verified on Celo Mainnet.
+                </p>
+              </div>
+              <div className="phase">
+                <div className="phase-numeral">II</div>
+                <h3 className="phase-title">The Stacks Crusade</h3>
+                <p className="phase-text">
+                  The same war forged anew in Clarity for Stacks — STX takes the place of
+                  CELO as the deposit of war.
+                </p>
+              </div>
+              <div className="phase">
+                <div className="phase-numeral">III</div>
+                <h3 className="phase-title">Keepsakes &amp; Beyond</h3>
+                <p className="phase-text">
+                  Finalised Keepsake NFT art, the Farcaster MiniApp, and archived season
+                  halls — viewable forever.
+                </p>
+              </div>
+              <div className="phase">
+                <div className="phase-numeral">IV</div>
+                <h3 className="phase-title">Sponsored Tournaments</h3>
+                <p className="phase-text">
+                  Sponsor-funded, skill-judged prize events gated by proof of personhood.
+                  The crown gains weight.
+                </p>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ============ VI. CTA + FOOTER ============ */}
+      <section className="section cta-section" id="contact">
+        <div className="fx-noise" />
+        <div className="section-inner">
+          <Reveal>
+            <div className="section-head" style={{ marginBottom: 0 }}>
+              <p className="kicker">The Horn Sounds</p>
+              <h2 className="section-title font-display">The Battlefield Awaits</h2>
+              <span className="ornament">✦</span>
+              <p className="section-blurb">
+                Live &amp; verified on Celo Mainnet. Join a faction, claim your first tile,
+                and leave your mark upon the map.
               </p>
             </div>
-          )}
-        </>
-      )}
+            <div className="cta-actions">
+              <button className="btn-outline gold" onClick={enterBattle}>
+                {isConnected ? "Enter the War Room" : "Connect Wallet"}
+              </button>
+              <a
+                className="btn-outline"
+                href={`${CELOSCAN}/${LUXENI}#code`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                View the Contract
+              </a>
+            </div>
+            <div className="cta-contracts">
+              <a href={`${CELOSCAN}/${LUXENI}#code`} target="_blank" rel="noreferrer">
+                Luxeni · {LUXENI}
+              </a>
+              <a href={`${CELOSCAN}/${KEEPSAKE}#code`} target="_blank" rel="noreferrer">
+                Keepsake · {KEEPSAKE}
+              </a>
+            </div>
+          </Reveal>
+        </div>
+      </section>
 
-      <p style={{ textAlign: "center", color: "#5b6273", fontSize: 12, marginTop: 12 }}>
-        {LUXENI.slice(0, 10)}… · verified on Celoscan
-      </p>
+      <footer className="site-footer">
+        <span className="footer-logo">✦ LUXENI</span>
+        <span className="footer-note">Forged on Celo · MIT License · © 2026 Luxeni</span>
+        <div className="footer-links">
+          <a href="https://github.com/emanuellzoe/Luxeni" target="_blank" rel="noreferrer">GitHub</a>
+          <a href={`${CELOSCAN}/${LUXENI}#code`} target="_blank" rel="noreferrer">Celoscan</a>
+          <Link href="/about">About</Link>
+        </div>
+      </footer>
     </main>
-  );
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: "1px solid #1d2230" }}>
-      <span style={{ color: "#8b93a7" }}>{label}</span>
-      <span style={{ fontWeight: 600 }}>{value}</span>
-    </div>
   );
 }
