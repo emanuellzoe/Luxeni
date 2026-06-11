@@ -10,6 +10,7 @@ export const TRACKED_EVENTS = [
   "BattlefieldCreated",
   "BattlefieldSettled",
   "TeamJoined",
+  "BattlefieldLeft",
   "MatchScoreClaimed",
   "SeasonRolled",
 ] as const;
