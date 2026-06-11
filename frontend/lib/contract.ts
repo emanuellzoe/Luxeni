@@ -8,6 +8,7 @@ export const KEEPSAKE = (process.env.NEXT_PUBLIC_KEEPSAKE ??
 export const luxeniAbi = [
   // reads
   { type: "function", name: "currentSeason", stateMutability: "view", inputs: [], outputs: [{ type: "uint32" }] },
+  { type: "function", name: "seasonEnd", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
   { type: "function", name: "battlefieldCount", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
   {
     type: "function", name: "energyOf", stateMutability: "view",
@@ -32,6 +33,22 @@ export const luxeniAbi = [
     inputs: [{ type: "uint256" }, { type: "address" }], outputs: [{ type: "uint256" }],
   },
   {
+    type: "function", name: "seasonScore", stateMutability: "view",
+    inputs: [{ type: "uint32" }, { type: "address" }], outputs: [{ type: "uint256" }],
+  },
+  {
+    type: "function", name: "cooldownEnd", stateMutability: "view",
+    inputs: [{ type: "address" }], outputs: [{ type: "uint256" }],
+  },
+  {
+    type: "function", name: "getActiveSlots", stateMutability: "view",
+    inputs: [{ type: "address" }], outputs: [{ type: "uint256[3]" }],
+  },
+  {
+    type: "function", name: "scoreClaimed", stateMutability: "view",
+    inputs: [{ type: "uint256" }, { type: "address" }], outputs: [{ type: "bool" }],
+  },
+  {
     type: "function", name: "battlefields", stateMutability: "view",
     inputs: [{ type: "uint256" }],
     outputs: [
@@ -46,17 +63,35 @@ export const luxeniAbi = [
   },
   // writes
   { type: "function", name: "buyLux", stateMutability: "payable", inputs: [], outputs: [] },
+  {
+    type: "function", name: "withdrawLux", stateMutability: "nonpayable",
+    inputs: [{ name: "amount", type: "uint256" }], outputs: [],
+  },
   { type: "function", name: "createBattlefield", stateMutability: "nonpayable", inputs: [], outputs: [{ type: "uint256" }] },
   {
     type: "function", name: "joinBattlefield", stateMutability: "nonpayable",
     inputs: [{ name: "bf", type: "uint256" }, { name: "team", type: "uint8" }], outputs: [],
   },
   {
+    type: "function", name: "leaveBattlefield", stateMutability: "nonpayable",
+    inputs: [{ name: "bf", type: "uint256" }], outputs: [],
+  },
+  {
     type: "function", name: "claimTile", stateMutability: "nonpayable",
     inputs: [{ name: "bf", type: "uint256" }, { name: "x", type: "uint16" }, { name: "y", type: "uint16" }], outputs: [],
+  },
+  {
+    type: "function", name: "settle", stateMutability: "nonpayable",
+    inputs: [{ name: "bf", type: "uint256" }], outputs: [],
+  },
+  {
+    type: "function", name: "claimMatchScore", stateMutability: "nonpayable",
+    inputs: [{ name: "bf", type: "uint256" }], outputs: [],
   },
 ] as const;
 
 export const WIDTH = 80;
 export const VIEW = 10; // render a 10x10 window of the board
-export const TEAM_COLORS = ["#1d2230", "#ff5b6e", "#5b8cff", "#36d399", "#f5a524"]; // 0=empty,1..4
+export const TEAM_COLORS = ["#16161d", "#a8323e", "#3d5a96", "#2e7d5b", "#b08938"]; // 0=empty, 1..4 factions
+export const TEAM_NAMES = ["—", "Crimson", "Azure", "Verdant", "Gilded"];
+export const CELOSCAN = "https://celoscan.io/address";
