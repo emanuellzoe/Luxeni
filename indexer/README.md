@@ -23,3 +23,14 @@ npm test                    # vitest (pglite, no network)
 `bf_players` (membership) · `match_scores` (per-match score) · `seasons` (archive).
 
 See `docs/superpowers/specs/2026-06-11-luxeni-indexer-backend-design.md`.
+
+## Deployment (free)
+- **Neon:** create a project; copy the pooled connection string.
+- **GitHub repo secrets** (Settings → Secrets → Actions): `DATABASE_URL`, `CELO_RPC_URL`.
+- **Apply schema once:** locally with `.env` set → `npm run db:migrate`.
+- The cron (`.github/workflows/indexer.yml`) runs `npm start` every ~5 min; trigger manually via
+  Actions tab → indexer → Run workflow.
+
+> Scheduled workflows are best-effort (a few minutes of drift) and auto-disable after 60 days of
+> repo inactivity — any commit re-enables them. Public repo → free unlimited Actions; private →
+> 2,000 min/mo (a 5-min cron fits).
