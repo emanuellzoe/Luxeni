@@ -12,7 +12,7 @@ import { useWalletUI } from "../providers";
 import {
   LUXENI, luxeniAbi, WIDTH, VIEW, TEAM_COLORS, TEAM_NAMES, CELOSCAN,
 } from "../../lib/contract";
-import { LeaderboardPanel } from "./_components/Leaderboard";
+import { LeaderboardPanel, TeamStandings, FullBoard } from "./_components/Leaderboard";
 
 const CAPACITY = 100;
 
@@ -314,6 +314,9 @@ export default function WarRoom() {
                 </p>
               </div>
             )}
+
+            {joined && bf ? <TeamStandings bf={Number(bf)} /> : null}
+            {joined && bf ? <FullBoard bf={Number(bf)} /> : null}
 
             {/* ended battles — settle & claim season score */}
             {endedBattles.length > 0 && (
