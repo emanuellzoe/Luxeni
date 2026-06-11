@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { order, applyEvents } from "../src/handlers";
+import { testDb } from "./helpers";
 
 describe("applyEvents", () => {
   it("order() sorts by (block, logIndex)", () => {
@@ -8,10 +9,13 @@ describe("applyEvents", () => {
     expect(sorted.map((x) => [Number(x.blockNumber), x.logIndex])).toEqual([[1, 1], [1, 5], [2, 0]]);
   });
 
-  it("dispatches a mixed batch over stub handlers without throwing", async () => {
-    const n = await applyEvents({} as any, [
-      { eventName: "TileClaimed", blockNumber: 1n, logIndex: 0, args: {} },
-      { eventName: "SeasonRolled", blockNumber: 1n, logIndex: 1, args: {} },
+  it("routes a mixed batch over real handlers (and ignores unknown events)", async () => {
+    const db = await testDb();
+    const n = await applyEvents(db, [
+      { eventName: "TileClaimed", blockNumber: 1n, logIndex: 0,
+        args: { bf: 1n, user: "0xA", x: 0, y: 0, team: 1, prevTeam: 0 } },
+      { eventName: "SeasonRolled", blockNumber: 1n, logIndex: 1,
+        args: { newSeason: 2, endTime: 100n } },
       { eventName: "Unknown", blockNumber: 2n, logIndex: 0, args: {} },
     ] as any);
     expect(n).toBe(3);
