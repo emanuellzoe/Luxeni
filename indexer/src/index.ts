@@ -20,6 +20,10 @@ export async function run(): Promise<void> {
   const head = Number(await client.getBlockNumber()) - FINALITY;
   const cursor = await getCursor(db, CELO_MAINNET, deploy);
   const from = Math.max(deploy, cursor - OVERLAP); // overlap re-scan for reorg safety
+  if (from > head) {
+    console.log(`[indexer] up to date at ${head}`);
+    return;
+  }
 
   let total = 0;
   for await (const { to, events } of sweepLogs(from, head)) {
