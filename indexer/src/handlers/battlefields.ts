@@ -9,6 +9,9 @@ export async function onBfCreated(db: Db, ev: any): Promise<void> {
   }).onConflictDoNothing();
 }
 
-export async function onBfSettled(_db: Db, _ev: any): Promise<void> {
-  /* implemented in PR4 (Task 12) */
+export async function onBfSettled(db: Db, ev: any): Promise<void> {
+  const { bf, winningTeam } = ev.args;
+  await db.update(battlefields)
+    .set({ status: 2, winningTeam: Number(winningTeam) })
+    .where(eq(battlefields.bf, Number(bf)));
 }
