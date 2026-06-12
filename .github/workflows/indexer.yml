@@ -21,3 +21,4 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           CELO_RPC_URL: ${{ secrets.CELO_RPC_URL }}
+          DEPLOY_BLOCK: ${{ secrets.DEPLOY_BLOCK }}
