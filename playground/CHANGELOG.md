@@ -21,3 +21,4 @@
 - u-20: add utility (bg #0d9488, pad 20px)
 - u-21: add utility (bg #2563eb, pad 21px)
 - u-22: add utility (bg #16a34a, pad 22px)
+- u-23: add utility (bg #dc2626, pad 23px)
