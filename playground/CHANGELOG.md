@@ -159,3 +159,4 @@
 - u-58: add utility (bg #65a30d, pad 58px)
 - u-59: add utility (bg #ea580c, pad 59px)
 - u-60: add utility (bg #0d9488, pad 60px)
+- u-61: add utility (bg #2563eb, pad 61px)
