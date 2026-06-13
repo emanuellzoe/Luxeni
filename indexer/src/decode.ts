@@ -1,7 +1,7 @@
-import { parseEventLogs, type Abi, type Log } from "viem";
-import { abi } from "./chain";
+import { type Log } from "viem";
+import { parseLuxeniLogs } from "luxeni-sdk";
 
 export function decode(logs: Log[]) {
-  return parseEventLogs({ abi: abi as unknown as Abi, logs });
+  return parseLuxeniLogs(logs);
 }
 export type LuxeniEvent = ReturnType<typeof decode>[number];
