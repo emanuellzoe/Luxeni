@@ -1,12 +1,52 @@
 {
-  "name": "@luxeni/sdk",
+  "name": "luxeni-sdk",
   "version": "0.1.0",
-  "description": "Luxeni addresses + ABIs + helpers (shared by frontend & indexer)",
-  "type": "module",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
+  "description": "Luxeni addresses + ABIs + helpers (Celo on-chain territory game) — shared by frontend & indexer",
   "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "luxeni",
+    "celo",
+    "web3",
+    "viem",
+    "abi",
+    "sdk",
+    "onchain-game"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emanuellzoe/Luxeni.git",
+    "directory": "sdk"
+  },
+  "homepage": "https://github.com/emanuellzoe/Luxeni/tree/main/sdk#readme",
+  "bugs": {
+    "url": "https://github.com/emanuellzoe/Luxeni/issues"
+  },
   "peerDependencies": {
+    "viem": "^2.21.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
     "viem": "^2.21.0"
   }
 }
