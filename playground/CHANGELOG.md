@@ -123,3 +123,4 @@
 - u-22: add utility (bg #16a34a, pad 22px)
 - u-23: add utility (bg #dc2626, pad 23px)
 - u-24: add utility (bg #d97706, pad 24px)
+- u-25: add utility (bg #7c3aed, pad 25px)
