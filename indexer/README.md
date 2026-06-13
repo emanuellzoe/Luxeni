@@ -3,6 +3,9 @@
 Read-only Node ingestor: sweeps `Luxeni` contract events → Neon Postgres → served by
 `frontend/app/api/*`. On-chain is the source of truth; the DB is a rebuildable cache.
 
+Contract address, chain id, ABI, and event decoding come from the published
+[`luxeni-sdk`](https://www.npmjs.com/package/luxeni-sdk) package (single source of truth).
+
 ## Setup
 ```bash
 cd indexer

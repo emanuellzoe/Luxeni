@@ -1,10 +1,10 @@
 import { createPublicClient, http } from "viem";
 import { celo } from "viem/chains";
 import { env } from "./env";
-import LuxeniAbi from "../abi/Luxeni.json";
+import { addresses, CELO_MAINNET as SDK_CELO_MAINNET, LuxeniAbi } from "luxeni-sdk";
 
-export const CELO_MAINNET = 42220;
-export const LUXENI = "0x82064c90A86BA16d81Dd1fb16374D78A70d59e70" as const;
+export const CELO_MAINNET = SDK_CELO_MAINNET;
+export const LUXENI = addresses[CELO_MAINNET].Luxeni;
 export const abi = LuxeniAbi as unknown as readonly unknown[];
 
 export const client = createPublicClient({ chain: celo, transport: http(env.rpcUrl) });
