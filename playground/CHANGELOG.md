@@ -206,3 +206,4 @@
 - u-5: add utility (bg #7c3aed, pad 5px)
 - u-6: add utility (bg #0891b2, pad 6px)
 - u-7: add utility (bg #db2777, pad 7px)
+- u-8: add utility (bg #65a30d, pad 8px)
