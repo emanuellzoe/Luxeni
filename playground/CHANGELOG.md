@@ -199,3 +199,4 @@
 - u-98: add utility (bg #65a30d, pad 98px)
 - u-99: add utility (bg #ea580c, pad 99px)
 - u-100: add utility (bg #0d9488, pad 100px)
+- u-1: add utility (bg #2563eb, pad 1px)
