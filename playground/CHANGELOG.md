@@ -269,3 +269,8 @@
 - u-68: add utility (bg #65a30d, pad 68px)
 - u-69: add utility (bg #ea580c, pad 69px)
 - u-70: add utility (bg #0d9488, pad 70px)
+- u-71: add utility (bg #2563eb, pad 71px)
+- u-72: add utility (bg #16a34a, pad 72px)
+- u-73: add utility (bg #dc2626, pad 73px)
+- u-74: add utility (bg #d97706, pad 74px)
+- u-75: add utility (bg #7c3aed, pad 75px)
