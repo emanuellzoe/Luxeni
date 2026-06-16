@@ -432,3 +432,4 @@
 - u-31: add utility (bg #2563eb, pad 31px)
 - u-32: add utility (bg #16a34a, pad 32px)
 - u-33: add utility (bg #dc2626, pad 33px)
+- u-34: add utility (bg #d97706, pad 34px)
