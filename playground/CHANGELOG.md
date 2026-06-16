@@ -445,3 +445,4 @@
 - u-44: add utility (bg #d97706, pad 44px)
 - u-45: add utility (bg #7c3aed, pad 45px)
 - u-46: add utility (bg #0891b2, pad 46px)
+- u-47: add utility (bg #db2777, pad 47px)
