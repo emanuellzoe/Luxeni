@@ -413,3 +413,4 @@
 - u-12: add utility (bg #16a34a, pad 12px)
 - u-13: add utility (bg #dc2626, pad 13px)
 - u-14: add utility (bg #d97706, pad 14px)
+- u-15: add utility (bg #7c3aed, pad 15px)
