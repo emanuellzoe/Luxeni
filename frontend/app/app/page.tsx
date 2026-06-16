@@ -12,6 +12,8 @@ import { useWalletUI } from "../providers";
 import {
   LUXENI, luxeniAbi, WIDTH, VIEW, TEAM_COLORS, TEAM_NAMES, CELOSCAN,
 } from "../../lib/contract";
+import { friendlyError, type FriendlyError } from "../../lib/errors";
+import { Alert } from "../components/Alert";
 import { LeaderboardPanel, TeamStandings, FullBoard } from "./_components/Leaderboard";
 
 const CAPACITY = 100;
@@ -58,9 +60,16 @@ export default function WarRoom() {
     return () => timers.forEach(clearTimeout);
   }, [confirmed, qc]);
   const busy = txPending || confirming;
-  const errMsg =
-    (writeError as any)?.shortMessage || (receiptError as any)?.shortMessage ||
-    (writeError as any)?.message || (receiptError as any)?.message || "";
+
+  // Surface any wallet/contract failure as a prominent, dismissible alert —
+  // e.g. tapping a tile that already belongs to an enemy banner, or one not
+  // adjacent to your ground. Keyed by message so each distinct error re-shows.
+  const [alert, setAlert] = useState<FriendlyError | null>(null);
+  useEffect(() => {
+    const friendly = friendlyError(writeError) ?? friendlyError(receiptError);
+    if (friendly) setAlert(friendly);
+  }, [writeError, receiptError]);
+
   const write = (functionName: string, args: any[] = [], value?: bigint) =>
     writeContract({ address: LUXENI, abi: luxeniAbi, functionName, args, value, chainId: celo.id } as any);
 
@@ -174,6 +183,7 @@ export default function WarRoom() {
   return (
     <main className="app-shell">
       <div className="fx-noise" />
+      <Alert error={alert} onClose={() => setAlert(null)} />
       <div className="app-inner">
         <div className="app-head">
           <h1 className="app-title font-display">War Room</h1>
@@ -191,12 +201,6 @@ export default function WarRoom() {
           </div>
         ) : (
           <>
-            {errMsg && (
-              <div className="panel error-panel">
-                ⚠ {errMsg.replace(/^.*reverted with the following reason:\s*/s, "").slice(0, 160)}
-              </div>
-            )}
-
             {/* treasury */}
             <div className="panel">
               <p className="panel-label">The Treasury</p>
