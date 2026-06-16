@@ -44,12 +44,18 @@ export default function WarRoom() {
 
   const { writeContract, data: txHash, isPending: txPending, error: writeError } = useWriteContract();
   const { isLoading: confirming, isSuccess: confirmed, error: receiptError } = useWaitForTransactionReceipt({ hash: txHash });
-  // refetch on confirm, then again after a beat to beat RPC read-after-write lag
+  // Bumped on every confirmed tx so indexer-backed panels (leaderboard, full
+  // board, team standings) refetch — they only read once per mount otherwise.
+  const [refreshTick, setRefreshTick] = useState(0);
+  // Celo RPC (and the indexer) lag behind a just-mined tx, so a single refetch
+  // often reads stale state. Stagger several invalidations to catch up without
+  // forcing the user to refresh by hand.
   useEffect(() => {
     if (!confirmed) return;
-    qc.invalidateQueries();
-    const t = setTimeout(() => qc.invalidateQueries(), 2500);
-    return () => clearTimeout(t);
+    const timers = [0, 1200, 3000, 6000, 10000].map((d) =>
+      setTimeout(() => { qc.invalidateQueries(); setRefreshTick((n) => n + 1); }, d)
+    );
+    return () => timers.forEach(clearTimeout);
   }, [confirmed, qc]);
   const busy = txPending || confirming;
   const errMsg =
@@ -250,7 +256,7 @@ export default function WarRoom() {
               </button>
             </div>
 
-            <LeaderboardPanel season={season ? Number(season) : undefined} me={address} />
+            <LeaderboardPanel season={season ? Number(season) : undefined} me={address} refresh={refreshTick} />
 
             {/* matchmaking */}
             {!joined && (
@@ -315,8 +321,8 @@ export default function WarRoom() {
               </div>
             )}
 
-            {joined && bf ? <TeamStandings bf={Number(bf)} /> : null}
-            {joined && bf ? <FullBoard bf={Number(bf)} /> : null}
+            {joined && bf ? <TeamStandings bf={Number(bf)} refresh={refreshTick} /> : null}
+            {joined && bf ? <FullBoard bf={Number(bf)} refresh={refreshTick} /> : null}
 
             {/* ended battles — settle & claim season score */}
             {endedBattles.length > 0 && (
