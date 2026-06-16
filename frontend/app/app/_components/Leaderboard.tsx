@@ -8,14 +8,14 @@ import { TEAM_NAMES, TEAM_COLORS } from "../../../lib/contract";
 
 const W = 80;
 
-export function LeaderboardPanel({ season, me }: { season?: number; me?: string }) {
+export function LeaderboardPanel({ season, me, refresh }: { season?: number; me?: string; refresh?: number }) {
   const [data, setData] = useState<Leaderboard | null>(null);
   const [err, setErr] = useState("");
   useEffect(() => {
     let on = true;
     getLeaderboard(season, me).then((d) => on && setData(d)).catch((e) => on && setErr(String(e)));
     return () => { on = false; };
-  }, [season, me]);
+  }, [season, me, refresh]);
 
   return (
     <div className="panel">
@@ -43,14 +43,14 @@ export function LeaderboardPanel({ season, me }: { season?: number; me?: string 
   );
 }
 
-export function TeamStandings({ bf }: { bf: number }) {
+export function TeamStandings({ bf, refresh }: { bf: number; refresh?: number }) {
   const [teams, setTeams] = useState<TeamStanding[] | null>(null);
   useEffect(() => {
     if (!bf) return;
     let on = true;
     getTeams(bf).then((d) => on && setTeams(d.teams)).catch(() => on && setTeams(null));
     return () => { on = false; };
-  }, [bf]);
+  }, [bf, refresh]);
   if (!teams) return null;
   return (
     <div className="panel">
@@ -70,14 +70,14 @@ export function TeamStandings({ bf }: { bf: number }) {
 }
 
 // Full 80×80 overview reconstructed from the indexer's sparse tile set.
-export function FullBoard({ bf }: { bf: number }) {
+export function FullBoard({ bf, refresh }: { bf: number; refresh?: number }) {
   const [tiles, setTiles] = useState<BoardTile[] | null>(null);
   useEffect(() => {
     if (!bf) return;
     let on = true;
     getBattlefield(bf).then((d) => on && setTiles(d.tiles)).catch(() => on && setTiles(null));
     return () => { on = false; };
-  }, [bf]);
+  }, [bf, refresh]);
   if (!tiles) return null;
 
   const grid = new Array<number>(W * W).fill(0);
