@@ -1077,6 +1077,90 @@ button { font-family: inherit; }
 }
 .alert-close:hover { color: #fff; border-color: rgba(224, 100, 100, 0.5); }
 
+/* ---------- leaderboard ---------- */
+
+.lb-seasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin: 0 0 22px;
+}
+.lb-season-chip {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: color 0.25s, border-color 0.25s, background 0.25s;
+}
+.lb-season-chip:hover { color: var(--ink); border-color: var(--line-strong); }
+.lb-season-chip.active {
+  color: var(--gold);
+  border-color: var(--gold-dim);
+  background: rgba(176, 137, 56, 0.08);
+}
+
+.lb-list { display: flex; flex-direction: column; }
+.lb-row {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 6px;
+  border-bottom: 1px solid var(--line);
+}
+.lb-row:last-child { border-bottom: 0; }
+.lb-row.podium { background: linear-gradient(90deg, rgba(176, 137, 56, 0.05), transparent); }
+.lb-row.me {
+  background: rgba(176, 137, 56, 0.1);
+  box-shadow: inset 2px 0 0 var(--gold);
+}
+.lb-row.detached {
+  margin-top: 10px;
+  border-top: 1px solid var(--line-strong);
+  border-bottom: 0;
+}
+.lb-rank {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 15px;
+  text-align: center;
+  color: var(--faint);
+  letter-spacing: 0.04em;
+}
+.lb-rank.r1 { color: var(--gold); font-size: 19px; text-shadow: 0 0 14px rgba(176, 137, 56, 0.5); }
+.lb-rank.r2 { color: #cdd3da; font-size: 18px; }
+.lb-rank.r3 { color: #c08a5a; font-size: 18px; }
+.lb-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--ink);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  min-width: 0;
+}
+a.lb-user:hover { color: var(--gold); }
+.lb-you {
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+  border: 1px solid var(--gold-dim);
+  padding: 2px 6px;
+}
+.lb-score {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 15px;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.lb-score small { font-size: 10px; color: var(--faint); letter-spacing: 0.08em; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.2s !important; }
   html { scroll-behavior: auto; }
