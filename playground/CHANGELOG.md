@@ -409,3 +409,4 @@
 - u-8: add utility (bg #65a30d, pad 8px)
 - u-9: add utility (bg #ea580c, pad 9px)
 - u-10: add utility (bg #0d9488, pad 10px)
+- u-11: add utility (bg #2563eb, pad 11px)
