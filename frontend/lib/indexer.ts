@@ -3,6 +3,7 @@ export type Leaderboard = { season: number; top: LeaderRow[]; me: { rank: number
 export type TeamStanding = { team: number; tiles: number; players: number };
 export type BoardTile = { x: number; y: number; team: number; owner: string };
 export type BattlefieldMeta = { bf: number; status: number; endTime: number; winningTeam: number; seasonId: number };
+export type Season = { seasonId: number; endTime: number };
 
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(path);
@@ -21,3 +22,5 @@ export const getTeams = (bf: number) =>
 
 export const getBattlefield = (bf: number) =>
   get<{ bf: number; meta: BattlefieldMeta | null; tiles: BoardTile[] }>(`/api/battlefield/${bf}`);
+
+export const getSeasons = () => get<{ seasons: Season[] }>(`/api/seasons`);
