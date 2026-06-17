@@ -916,6 +916,19 @@ button { font-family: inherit; }
   color: var(--gold);
   margin: 0 0 14px;
 }
+.season-window {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  margin: -8px 0 16px;
+}
+.season-window .sw-live { color: var(--gold); }
+.season-window .sw-sep { color: var(--faint); }
+.season-window .sw-range { color: var(--faint); }
 .panel.error-panel { border-color: rgba(224, 100, 100, 0.35); background: rgba(96, 24, 24, 0.14); color: #e8a3a3; font-size: 12.5px; line-height: 1.7; }
 .panel.error-panel::before, .panel.error-panel::after { border-color: rgba(224, 100, 100, 0.4); }
 
