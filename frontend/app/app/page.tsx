@@ -301,8 +301,8 @@ export default function WarRoom() {
                 </p>
                 {energy && energy[0] + energy[1] === 0n && (
                   <p style={{ color: "var(--gold)", fontSize: 12, lineHeight: 1.7, margin: "0 0 10px" }}>
-                    ⚡ Your energy is spent — buy LUX in the Treasury above. Energy is shared
-                    across all your battles and refills 1 LUX every 20 minutes.
+                    ⚡ Your energy is spent — buy LUX in the Treasury above, or wait — free
+                    energy refills 1 LUX every 20 minutes automatically.
                   </p>
                 )}
                 <div className="board" style={{ gridTemplateColumns: `repeat(${VIEW}, 1fr)` }}>
