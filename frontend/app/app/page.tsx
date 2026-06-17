@@ -14,7 +14,7 @@ import {
 } from "../../lib/contract";
 import { friendlyError, type FriendlyError } from "../../lib/errors";
 import { Alert } from "../components/Alert";
-import { LeaderboardPanel, TeamStandings, FullBoard } from "./_components/Leaderboard";
+import { TeamStandings, FullBoard } from "./_components/Leaderboard";
 
 const CAPACITY = 100;
 
@@ -259,8 +259,6 @@ export default function WarRoom() {
                 Disconnect
               </button>
             </div>
-
-            <LeaderboardPanel season={season ? Number(season) : undefined} me={address} refresh={refreshTick} />
 
             {/* matchmaking */}
             {!joined && (
