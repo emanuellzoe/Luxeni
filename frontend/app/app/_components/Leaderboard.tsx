@@ -51,7 +51,12 @@ export function TeamStandings({ bf, refresh }: { bf: number; refresh?: number })
     getTeams(bf).then((d) => on && setTeams(d.teams)).catch(() => on && setTeams(null));
     return () => { on = false; };
   }, [bf, refresh]);
-  if (!teams) return null;
+  if (!teams) return (
+    <div className="panel">
+      <p className="panel-label">Banners of Battlefield #{bf}</p>
+      <p className="board-note">Summoning banners…</p>
+    </div>
+  );
   return (
     <div className="panel">
       <p className="panel-label">Banners of Battlefield #{bf}</p>
@@ -78,7 +83,12 @@ export function FullBoard({ bf, refresh }: { bf: number; refresh?: number }) {
     getBattlefield(bf).then((d) => on && setTiles(d.tiles)).catch(() => on && setTiles(null));
     return () => { on = false; };
   }, [bf, refresh]);
-  if (!tiles) return null;
+  if (!tiles) return (
+    <div className="panel">
+      <p className="panel-label">The War, Entire · #{bf}</p>
+      <p className="board-note">Rendering the battlefield…</p>
+    </div>
+  );
 
   const grid = new Array<number>(W * W).fill(0);
   for (const t of tiles) grid[t.y * W + t.x] = t.team;
