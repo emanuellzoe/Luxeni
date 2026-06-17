@@ -20,6 +20,7 @@ export default function LeaderboardPage() {
   const [data, setData] = useState<Leaderboard | null>(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
+  const [retryTick, setRetryTick] = useState(0);
 
   // available seasons (for the selector); default to the latest
   useEffect(() => {
@@ -43,7 +44,7 @@ export default function LeaderboardPage() {
       .then((d) => { if (on) { setData(d); setLoading(false); } })
       .catch((e) => { if (on) { setErr(String(e)); setLoading(false); } });
     return () => { on = false; };
-  }, [season, me]);
+  }, [season, me, retryTick]);
 
   const meInTop = data?.top.some((r) => r.user === me);
 
@@ -84,7 +85,17 @@ export default function LeaderboardPage() {
             Season {season ?? data?.season ?? "…"} · Top Warriors
           </p>
 
-          {err && <p className="board-note">The rolls are offline — the indexer cannot be reached.</p>}
+          {err && (
+            <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+              <p className="board-note" style={{ margin: 0 }}>The rolls are offline — the indexer cannot be reached.</p>
+              <button
+                className="btn-outline small"
+                onClick={() => { setErr(""); setLoading(true); setRetryTick((n) => n + 1); }}
+              >
+                Try again
+              </button>
+            </div>
+          )}
           {loading && !err && <p className="board-note">Summoning the rolls…</p>}
 
           {!loading && !err && data && (
