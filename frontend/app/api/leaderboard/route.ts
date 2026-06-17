@@ -14,18 +14,22 @@ export async function GET(req: Request) {
   const season = Number(url.searchParams.get("season")) || (await latestSeason(sql));
   const me = url.searchParams.get("me")?.toLowerCase() || null;
 
+  // ROW_NUMBER (not RANK) so tied scores still get distinct, sequential
+  // positions — 1, 2, 3, 4 … — instead of every tie collapsing to one rank.
+  // The "user" tiebreaker keeps the order stable and identical to the "me"
+  // query below, so a wallet's standing matches its row in the top list.
   const top = await sql`
     SELECT "user", SUM(points)::bigint AS score,
-           RANK() OVER (ORDER BY SUM(points) DESC) AS rank
+           ROW_NUMBER() OVER (ORDER BY SUM(points) DESC, "user") AS rank
     FROM match_scores WHERE season = ${season}
-    GROUP BY "user" ORDER BY score DESC LIMIT 100`;
+    GROUP BY "user" ORDER BY score DESC, "user" LIMIT 100`;
 
   let meRow: { rank: number; score: number } | null = null;
   if (me) {
     const r = await sql`
       WITH ranked AS (
         SELECT "user", SUM(points) AS score,
-               RANK() OVER (ORDER BY SUM(points) DESC) AS rank
+               ROW_NUMBER() OVER (ORDER BY SUM(points) DESC, "user") AS rank
         FROM match_scores WHERE season = ${season} GROUP BY "user")
       SELECT rank, score FROM ranked WHERE "user" = ${me}`;
     if (r[0]) meRow = { rank: Number(r[0].rank), score: Number(r[0].score) };
