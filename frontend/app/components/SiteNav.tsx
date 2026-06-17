@@ -60,7 +60,7 @@ export function SiteNav() {
         </div>
       </header>
 
-      <nav className={`nav-mobile${open ? " open" : ""}`} aria-label="Mobile">
+      <nav className={`nav-mobile${open ? " open" : ""}`} aria-label="Mobile" aria-hidden={!open}>
         {LINKS.map((l) => (
           <Link key={l.label} href={l.href} onClick={() => setOpen(false)}>{l.label}</Link>
         ))}
