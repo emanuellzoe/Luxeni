@@ -554,3 +554,8 @@
 - u-53: add utility (bg #dc2626, pad 53px)
 - u-54: add utility (bg #d97706, pad 54px)
 - u-55: add utility (bg #7c3aed, pad 55px)
+- u-56: add utility (bg #0891b2, pad 56px)
+- u-57: add utility (bg #db2777, pad 57px)
+- u-58: add utility (bg #65a30d, pad 58px)
+- u-59: add utility (bg #ea580c, pad 59px)
+- u-60: add utility (bg #0d9488, pad 60px)
