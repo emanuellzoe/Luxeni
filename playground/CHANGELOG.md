@@ -585,3 +585,4 @@
 - u-84: add utility (bg #d97706, pad 84px)
 - u-85: add utility (bg #7c3aed, pad 85px)
 - u-86: add utility (bg #0891b2, pad 86px)
+- u-87: add utility (bg #db2777, pad 87px)
