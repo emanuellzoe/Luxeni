@@ -282,7 +282,7 @@ export default function WarRoom() {
                   </div>
                 )}
                 <button className="btn-outline gold" style={{ width: "100%" }} disabled={busy} onClick={findMatch}>
-                  {busy ? "…" : joinable ? `⚔ Find Match — Join the ${TEAM_NAMES[smallestTeam]}` : "✦ Raise a Battlefield"}
+                  {busy ? (joinable ? "Joining…" : "Raising Battlefield…") : joinable ? `⚔ Find Match — Join the ${TEAM_NAMES[smallestTeam]}` : "✦ Raise a Battlefield"}
                 </button>
               </div>
             )}
