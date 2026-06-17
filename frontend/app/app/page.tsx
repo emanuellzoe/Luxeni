@@ -233,7 +233,7 @@ export default function WarRoom() {
 
               <div className="field-row">
                 <input
-                  className="input-dark" value={amount} inputMode="decimal"
+                  className="input-dark" value={amount} inputMode="decimal" aria-label="CELO amount to spend"
                   onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))} placeholder="CELO"
                 />
                 <button className="btn-outline small gold" disabled={busy || !amountValid} onClick={buyLux}>
@@ -242,7 +242,7 @@ export default function WarRoom() {
               </div>
               <div className="field-row">
                 <input
-                  className="input-dark" value={luxOut} inputMode="numeric"
+                  className="input-dark" value={luxOut} inputMode="numeric" aria-label="LUX amount to withdraw"
                   onChange={(e) => setLuxOut(e.target.value.replace(/[^0-9]/g, ""))} placeholder="LUX"
                 />
                 <button className="btn-outline small" disabled={busy || !luxOut || Number(luxOut) === 0}
@@ -282,7 +282,7 @@ export default function WarRoom() {
                   </div>
                 )}
                 <button className="btn-outline gold" style={{ width: "100%" }} disabled={busy} onClick={findMatch}>
-                  {busy ? "…" : joinable ? `⚔ Find Match — Join the ${TEAM_NAMES[smallestTeam]}` : "✦ Raise a Battlefield"}
+                  {busy ? (joinable ? "Joining…" : "Raising Battlefield…") : joinable ? `⚔ Find Match — Join the ${TEAM_NAMES[smallestTeam]}` : "✦ Raise a Battlefield"}
                 </button>
               </div>
             )}
@@ -301,8 +301,8 @@ export default function WarRoom() {
                 </p>
                 {energy && energy[0] + energy[1] === 0n && (
                   <p style={{ color: "var(--gold)", fontSize: 12, lineHeight: 1.7, margin: "0 0 10px" }}>
-                    ⚡ Your energy is spent — buy LUX in the Treasury above. Energy is shared
-                    across all your battles and refills 1 LUX every 20 minutes.
+                    ⚡ Your energy is spent — buy LUX in the Treasury above, or wait — free
+                    energy refills 1 LUX every 20 minutes automatically.
                   </p>
                 )}
                 <div className="board" style={{ gridTemplateColumns: `repeat(${VIEW}, 1fr)` }}>
@@ -312,6 +312,7 @@ export default function WarRoom() {
                     const team = res ? Number(res[0]) : 0;
                     return (
                       <button key={i} title={`(${x},${y})`} disabled={busy}
+                        aria-label={`Tile (${x},${y}) — ${team ? TEAM_NAMES[team] : "unclaimed"}`}
                         onClick={() => write("claimTile", [BigInt(bf), x, y])}
                         style={{ background: TEAM_COLORS[team] }} />
                     );
