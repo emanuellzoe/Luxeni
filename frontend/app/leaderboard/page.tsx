@@ -11,6 +11,24 @@ import { CELOSCAN } from "../../lib/contract";
 
 const RANK_MARK = ["", "①", "②", "③"]; // 1st / 2nd / 3rd flourishes
 
+// One season runs 4 weeks — mirrors SEASON_DURATION in the Luxeni contract.
+// The indexer only stores each season's endTime, so the start is derived.
+const SEASON_LEN_MS = 28 * 24 * 60 * 60 * 1000;
+
+const fmtDate = (ms: number) =>
+  new Date(ms).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+
+function fmtRemaining(endMs: number, nowMs: number): string {
+  const diff = endMs - nowMs;
+  if (diff <= 0) return "Season closed";
+  const d = Math.floor(diff / 86_400_000);
+  const h = Math.floor((diff % 86_400_000) / 3_600_000);
+  const m = Math.floor((diff % 3_600_000) / 60_000);
+  if (d > 0) return `${d}d ${h}h left`;
+  if (h > 0) return `${h}h ${m}m left`;
+  return `${m}m left`;
+}
+
 export default function LeaderboardPage() {
   const { address } = useAccount();
   const me = address?.toLowerCase();
@@ -21,6 +39,13 @@ export default function LeaderboardPage() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
   const [retryTick, setRetryTick] = useState(0);
+  const [now, setNow] = useState(() => Date.now());
+
+  // tick once a minute so the season countdown stays current
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 60_000);
+    return () => clearInterval(t);
+  }, []);
 
   // available seasons (for the selector); default to the latest
   useEffect(() => {
@@ -47,6 +72,11 @@ export default function LeaderboardPage() {
   }, [season, me, retryTick]);
 
   const meInTop = data?.top.some((r) => r.user === me);
+
+  // the season being shown, and its window (end stored, start derived)
+  const shownSeason = season ?? data?.season;
+  const activeSeason = seasons.find((s) => s.seasonId === shownSeason);
+  const endMs = activeSeason ? activeSeason.endTime * 1000 : null;
 
   return (
     <main className="app-shell">
@@ -82,8 +112,16 @@ export default function LeaderboardPage() {
 
         <div className="panel">
           <p className="panel-label">
-            Season {season ?? data?.season ?? "…"} · Top Warriors
+            Season {shownSeason ?? "…"} · Top Warriors
           </p>
+
+          {endMs && (
+            <p className="season-window">
+              <span className="sw-live">{fmtRemaining(endMs, now)}</span>
+              <span className="sw-sep">·</span>
+              <span className="sw-range">{fmtDate(endMs - SEASON_LEN_MS)} → {fmtDate(endMs)}</span>
+            </p>
+          )}
 
           {err && (
             <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
