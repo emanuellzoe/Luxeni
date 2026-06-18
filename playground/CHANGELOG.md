@@ -641,3 +641,4 @@
 - u-40: add utility (bg #0d9488, pad 40px)
 - u-41: add utility (bg #2563eb, pad 41px)
 - u-42: add utility (bg #16a34a, pad 42px)
+- u-43: add utility (bg #dc2626, pad 43px)
