@@ -626,3 +626,4 @@
 - u-25: add utility (bg #7c3aed, pad 25px)
 - u-26: add utility (bg #0891b2, pad 26px)
 - u-27: add utility (bg #db2777, pad 27px)
+- u-28: add utility (bg #65a30d, pad 28px)
