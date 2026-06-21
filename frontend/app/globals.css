@@ -1061,6 +1061,41 @@ body.has-side-nav .app-shell {
 .season-window .sw-live { color: var(--gold); }
 .season-window .sw-sep { color: var(--faint); }
 .season-window .sw-range { color: var(--faint); }
+
+/* leaderboard panel header with the live-update badge */
+.lb-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 14px;
+}
+.lb-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 9.5px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.lb-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #46c976;
+  box-shadow: 0 0 0 0 rgba(70, 201, 118, 0.5);
+  animation: lb-pulse 2s ease-out infinite;
+}
+@keyframes lb-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(70, 201, 118, 0.5); }
+  70% { box-shadow: 0 0 0 6px rgba(70, 201, 118, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(70, 201, 118, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lb-live-dot { animation: none; }
+}
 .panel.error-panel { border-color: rgba(224, 100, 100, 0.35); background: rgba(96, 24, 24, 0.14); color: #e8a3a3; font-size: 12.5px; line-height: 1.7; }
 .panel.error-panel::before, .panel.error-panel::after { border-color: rgba(224, 100, 100, 0.4); }
 

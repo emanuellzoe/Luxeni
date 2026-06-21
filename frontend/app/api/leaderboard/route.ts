@@ -41,6 +41,6 @@ export async function GET(req: Request) {
       top: top.map((r: any) => ({ rank: Number(r.rank), user: r.user, score: Number(r.score) })),
       me: meRow,
     },
-    { headers: { "Cache-Control": "s-maxage=30, stale-while-revalidate=60" } },
+    { headers: { "Cache-Control": "s-maxage=10, stale-while-revalidate=20" } },
   );
 }
