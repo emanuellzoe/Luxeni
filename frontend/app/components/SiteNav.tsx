@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { useWalletUI } from "../providers";
+import { isAppRoute } from "./SideNav";
 
 const LINKS = [
   { href: "/", label: "Home" },
@@ -15,6 +17,7 @@ const LINKS = [
 ];
 
 export function SiteNav() {
+  const pathname = usePathname();
   const { address, isConnected } = useAccount();
   const { openConnect } = useWalletUI();
   const [scrolled, setScrolled] = useState(false);
@@ -26,6 +29,10 @@ export function SiteNav() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // The app experience runs under its own minimalist icon rail (SideNav) — the
+  // marketing top-bar would only clutter it.
+  if (isAppRoute(pathname)) return null;
 
   return (
     <>
