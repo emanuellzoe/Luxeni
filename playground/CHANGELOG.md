@@ -714,3 +714,4 @@
 - u-113: add utility (bg #dc2626, pad 113px)
 - u-114: add utility (bg #d97706, pad 114px)
 - u-115: add utility (bg #7c3aed, pad 115px)
+- u-116: add utility (bg #0891b2, pad 116px)
