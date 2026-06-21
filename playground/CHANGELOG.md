@@ -754,3 +754,8 @@
 - u-153: add utility (bg #dc2626, pad 153px)
 - u-154: add utility (bg #d97706, pad 154px)
 - u-155: add utility (bg #7c3aed, pad 155px)
+- u-156: add utility (bg #0891b2, pad 156px)
+- u-157: add utility (bg #db2777, pad 157px)
+- u-158: add utility (bg #65a30d, pad 158px)
+- u-159: add utility (bg #ea580c, pad 159px)
+- u-160: add utility (bg #0d9488, pad 160px)
