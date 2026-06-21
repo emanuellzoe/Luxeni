@@ -708,3 +708,4 @@
 - u-107: add utility (bg #db2777, pad 107px)
 - u-108: add utility (bg #65a30d, pad 108px)
 - u-109: add utility (bg #ea580c, pad 109px)
+- u-110: add utility (bg #0d9488, pad 110px)
