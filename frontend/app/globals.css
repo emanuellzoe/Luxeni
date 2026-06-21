@@ -180,6 +180,138 @@ button { font-family: inherit; }
 }
 .nav-mobile.open { display: flex; }
 
+/* ---------- app rail (minimalist side nav) ---------- */
+
+:root { --rail-w: 72px; }
+
+.side-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--rail-w);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 0 22px;
+  background: rgba(4, 4, 6, 0.82);
+  backdrop-filter: blur(10px) saturate(120%);
+  border-right: 1px solid var(--line);
+}
+.rail-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  font-size: 15px;
+  color: var(--gold);
+  border: 1px solid var(--gold-dim);
+  transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+.rail-logo:hover {
+  background: rgba(201, 169, 106, 0.1);
+  border-color: var(--gold);
+  box-shadow: 0 0 18px rgba(201, 169, 106, 0.22);
+}
+.rail-links {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+  width: 100%;
+  align-items: center;
+}
+.rail-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  color: var(--faint);
+  border: 1px solid transparent;
+  transition: color 0.25s, background 0.25s, border-color 0.25s;
+}
+.rail-link:hover { color: var(--ink); background: rgba(255, 255, 255, 0.05); }
+.rail-link.active {
+  color: var(--gold);
+  border-color: var(--gold-dim);
+  background: rgba(201, 169, 106, 0.07);
+}
+.rail-link.active::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 20px;
+  background: var(--gold);
+  box-shadow: 0 0 10px rgba(201, 169, 106, 0.7);
+}
+/* hover label that floats to the right of the rail */
+.rail-tip {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-4px);
+  padding: 5px 10px;
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: rgba(12, 12, 16, 0.96);
+  border: 1px solid var(--line);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 1;
+}
+.rail-link:hover .rail-tip { opacity: 1; transform: translateY(-50%) translateX(0); }
+
+/* shells reserve room for the fixed rail and shed the top-bar gap */
+body.has-side-nav .app-shell {
+  padding-left: calc(var(--rail-w) + 24px);
+  padding-right: 24px;
+  padding-top: 48px;
+}
+
+@media (max-width: 640px) {
+  :root { --rail-w: 100%; }
+  .side-nav {
+    top: auto;
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
+    height: 60px;
+    width: 100%;
+    padding: 0 16px;
+    border-right: 0;
+    border-top: 1px solid var(--line);
+  }
+  .rail-logo { width: 38px; height: 38px; }
+  .rail-links { flex-direction: row; margin-top: 0; width: auto; gap: 8px; }
+  .rail-link.active::before {
+    left: 50%;
+    top: auto;
+    bottom: -1px;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 2px;
+  }
+  .rail-tip { display: none; }
+  body.has-side-nav .app-shell {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 36px;
+    padding-bottom: calc(60px + 40px);
+  }
+}
+
 /* ---------- hero ---------- */
 
 .hero {
@@ -992,6 +1124,37 @@ button { font-family: inherit; }
 .app-foot { text-align: center; color: var(--faint); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; margin-top: 26px; }
 .app-foot a { color: var(--faint); border-bottom: 1px solid var(--line); transition: color 0.3s; }
 .app-foot a:hover { color: var(--gold); }
+
+/* ---------- profile ---------- */
+
+.profile-id {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 4px 0 18px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.profile-sigil {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  font-size: 18px;
+  color: var(--gold);
+  border: 1px solid var(--gold-dim);
+  flex-shrink: 0;
+}
+.profile-addr {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 18px;
+  letter-spacing: 0.1em;
+  color: var(--ink);
+  border-bottom: 1px solid transparent;
+  transition: color 0.3s, border-color 0.3s;
+}
+.profile-addr:hover { color: var(--gold); border-bottom-color: var(--gold-dim); }
 
 /* ---------- about page ---------- */
 
