@@ -789,3 +789,4 @@
 - u-188: add utility (bg #65a30d, pad 188px)
 - u-189: add utility (bg #ea580c, pad 189px)
 - u-190: add utility (bg #0d9488, pad 190px)
+- u-191: add utility (bg #2563eb, pad 191px)
