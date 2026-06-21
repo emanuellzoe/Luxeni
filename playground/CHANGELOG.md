@@ -703,3 +703,4 @@
 - u-102: add utility (bg #16a34a, pad 102px)
 - u-103: add utility (bg #dc2626, pad 103px)
 - u-104: add utility (bg #d97706, pad 104px)
+- u-105: add utility (bg #7c3aed, pad 105px)
