@@ -722,3 +722,4 @@
 - u-121: add utility (bg #2563eb, pad 121px)
 - u-122: add utility (bg #16a34a, pad 122px)
 - u-123: add utility (bg #dc2626, pad 123px)
+- u-124: add utility (bg #d97706, pad 124px)
