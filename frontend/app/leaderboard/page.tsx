@@ -40,6 +40,7 @@ export default function LeaderboardPage() {
   const [err, setErr] = useState("");
   const [retryTick, setRetryTick] = useState(0);
   const [now, setNow] = useState(() => Date.now());
+  const [updatedAt, setUpdatedAt] = useState<number | null>(null);
 
   // tick once a minute so the season countdown stays current
   useEffect(() => {
@@ -60,15 +61,26 @@ export default function LeaderboardPage() {
     return () => { on = false; };
   }, []);
 
-  // the ranking itself — refetched whenever the chosen season or wallet changes
+  // The ranking itself. Refetched when the chosen season or wallet changes, and
+  // then kept current by a 20s poll plus a refresh whenever the tab regains
+  // focus — so a war settled elsewhere shows up without a manual reload. Polled
+  // fetches are "silent": no spinner, no error wipe, just a quiet data swap.
   useEffect(() => {
     let on = true;
-    setLoading(true);
-    setErr("");
-    getLeaderboard(season, me)
-      .then((d) => { if (on) { setData(d); setLoading(false); } })
-      .catch((e) => { if (on) { setErr(String(e)); setLoading(false); } });
-    return () => { on = false; };
+    const run = (silent: boolean) => {
+      if (!silent) { setLoading(true); setErr(""); }
+      return getLeaderboard(season, me)
+        .then((d) => { if (on) { setData(d); setUpdatedAt(Date.now()); if (!silent) setLoading(false); } })
+        .catch((e) => { if (on && !silent) { setErr(String(e)); setLoading(false); } });
+    };
+    run(false);
+    const poll = setInterval(() => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      run(true);
+    }, 20_000);
+    const onFocus = () => run(true);
+    window.addEventListener("focus", onFocus);
+    return () => { on = false; clearInterval(poll); window.removeEventListener("focus", onFocus); };
   }, [season, me, retryTick]);
 
   const meInTop = data?.top.some((r) => r.user === me);
@@ -111,9 +123,17 @@ export default function LeaderboardPage() {
         )}
 
         <div className="panel">
-          <p className="panel-label">
-            Season {shownSeason ?? "…"} · Top Warriors
-          </p>
+          <div className="lb-head">
+            <p className="panel-label" style={{ margin: 0 }}>
+              Season {shownSeason ?? "…"} · Top Warriors
+            </p>
+            {updatedAt && !err && (
+              <span className="lb-live" title={`Updated ${new Date(updatedAt).toLocaleTimeString()}`}>
+                <i className="lb-live-dot" />
+                Live
+              </span>
+            )}
+          </div>
 
           {endMs && (
             <p className="season-window">

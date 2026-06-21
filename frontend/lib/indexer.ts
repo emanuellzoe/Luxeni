@@ -5,8 +5,10 @@ export type BoardTile = { x: number; y: number; team: number; owner: string };
 export type BattlefieldMeta = { bf: number; status: number; endTime: number; winningTeam: number; seasonId: number };
 export type Season = { seasonId: number; endTime: number };
 
+// These all read live indexer state, so never serve a cached body — a stale
+// leaderboard reads as "broken" to players who just settled a war.
 async function get<T>(path: string): Promise<T> {
-  const res = await fetch(path);
+  const res = await fetch(path, { cache: "no-store" });
   if (!res.ok) throw new Error(`${path} → ${res.status}`);
   return res.json() as Promise<T>;
 }
