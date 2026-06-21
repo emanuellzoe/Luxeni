@@ -719,3 +719,8 @@
 - u-118: add utility (bg #65a30d, pad 118px)
 - u-119: add utility (bg #ea580c, pad 119px)
 - u-120: add utility (bg #0d9488, pad 120px)
+- u-121: add utility (bg #2563eb, pad 121px)
+- u-122: add utility (bg #16a34a, pad 122px)
+- u-123: add utility (bg #dc2626, pad 123px)
+- u-124: add utility (bg #d97706, pad 124px)
+- u-125: add utility (bg #7c3aed, pad 125px)
