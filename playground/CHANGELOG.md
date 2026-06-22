@@ -804,3 +804,4 @@
 - u-203: add utility (bg #dc2626, pad 203px)
 - u-204: add utility (bg #d97706, pad 204px)
 - u-205: add utility (bg #7c3aed, pad 205px)
+- u-206: add utility (bg #0891b2, pad 206px)
