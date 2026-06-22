@@ -874,3 +874,8 @@
 - u-273: add utility (bg #dc2626, pad 273px)
 - u-274: add utility (bg #d97706, pad 274px)
 - u-275: add utility (bg #7c3aed, pad 275px)
+- u-276: add utility (bg #0891b2, pad 276px)
+- u-277: add utility (bg #db2777, pad 277px)
+- u-278: add utility (bg #65a30d, pad 278px)
+- u-279: add utility (bg #ea580c, pad 279px)
+- u-280: add utility (bg #0d9488, pad 280px)
