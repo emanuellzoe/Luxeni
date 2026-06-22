@@ -845,3 +845,4 @@
 - u-244: add utility (bg #d97706, pad 244px)
 - u-245: add utility (bg #7c3aed, pad 245px)
 - u-246: add utility (bg #0891b2, pad 246px)
+- u-247: add utility (bg #db2777, pad 247px)
