@@ -844,3 +844,8 @@
 - u-243: add utility (bg #dc2626, pad 243px)
 - u-244: add utility (bg #d97706, pad 244px)
 - u-245: add utility (bg #7c3aed, pad 245px)
+- u-246: add utility (bg #0891b2, pad 246px)
+- u-247: add utility (bg #db2777, pad 247px)
+- u-248: add utility (bg #65a30d, pad 248px)
+- u-249: add utility (bg #ea580c, pad 249px)
+- u-250: add utility (bg #0d9488, pad 250px)
