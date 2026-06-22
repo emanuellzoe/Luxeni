@@ -859,3 +859,8 @@
 - u-258: add utility (bg #65a30d, pad 258px)
 - u-259: add utility (bg #ea580c, pad 259px)
 - u-260: add utility (bg #0d9488, pad 260px)
+- u-261: add utility (bg #2563eb, pad 261px)
+- u-262: add utility (bg #16a34a, pad 262px)
+- u-263: add utility (bg #dc2626, pad 263px)
+- u-264: add utility (bg #d97706, pad 264px)
+- u-265: add utility (bg #7c3aed, pad 265px)
