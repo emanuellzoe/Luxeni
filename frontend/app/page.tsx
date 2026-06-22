@@ -277,7 +277,72 @@ export default function Landing() {
 
       <div className="hairline" />
 
-      {/* ============ V. ROADMAP ============ */}
+      {/* ============ V. QUICK START (30s onboarding) ============ */}
+      <section className="section" id="start">
+        <div className="section-inner">
+          <Reveal>
+            <div className="section-head">
+              <p className="kicker">Join the Battle</p>
+              <h2 className="section-title font-display">Play in 30 Seconds</h2>
+              <span className="ornament">✦</span>
+              <p className="section-blurb">
+                No sign-up. No approval. Bind your wallet, deposit a fraction of CELO,
+                and your first tile claim goes on-chain in under a minute.
+              </p>
+            </div>
+          </Reveal>
+
+          <Reveal delay={80}>
+            <div className="quick-steps">
+              <div className="qs-item">
+                <span className="qs-num">01</span>
+                <div className="qs-body">
+                  <h3 className="qs-title">Open MiniPay or any Celo wallet</h3>
+                  <p className="qs-text">
+                    Inside <b>MiniPay</b> you are auto-connected. On desktop, click
+                    &ldquo;Connect Wallet&rdquo; — MetaMask, Coinbase Wallet, or any
+                    WalletConnect-compatible wallet on Celo Mainnet works.
+                  </p>
+                </div>
+              </div>
+              <div className="qs-item">
+                <span className="qs-num">02</span>
+                <div className="qs-body">
+                  <h3 className="qs-title">Deposit as little as 0.01 CELO → get 10 LUX free</h3>
+                  <p className="qs-text">
+                    Every new wallet starts with <b>10 free LUX</b> (auto-refills 1 LUX
+                    every 20 min). Buy more with CELO — <b>1 CELO = 1,000 LUX</b>, and
+                    unused LUX is always refundable at 1:1.
+                  </p>
+                </div>
+              </div>
+              <div className="qs-item">
+                <span className="qs-num">03</span>
+                <div className="qs-body">
+                  <h3 className="qs-title">Join a battlefield — tap a tile, done</h3>
+                  <p className="qs-text">
+                    Hit &ldquo;Find Match&rdquo; and you land on the smallest banner to keep
+                    it fair. Tap any tile adjacent to your colour — 1 LUX, 1 on-chain
+                    transaction, one tile claimed. That&apos;s it.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal delay={160}>
+            <div style={{ textAlign: "center", marginTop: 44 }}>
+              <button className="btn-outline gold" onClick={enterBattle}>
+                {isConnected ? "Enter the War Room →" : "Connect & Play →"}
+              </button>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      <div className="hairline" />
+
+      {/* ============ VI. ROADMAP ============ */}
       <section className="section" id="roadmap">
         <div className="section-inner">
           <Reveal>
@@ -328,7 +393,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ============ VI. CTA + FOOTER ============ */}
+      {/* ============ VII. CTA + FOOTER ============ */}
       <section className="section cta-section" id="contact">
         <div className="fx-noise" />
         <div className="section-inner">
