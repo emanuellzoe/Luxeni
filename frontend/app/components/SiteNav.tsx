@@ -11,6 +11,7 @@ const LINKS = [
   { href: "/", label: "Home" },
   { href: "/#features", label: "Features" },
   { href: "/#how", label: "How It Works" },
+  { href: "/#start", label: "Play Now" },
   { href: "/leaderboard", label: "Leaderboard" },
   { href: "/#roadmap", label: "Roadmap" },
   { href: "/about", label: "About" },
