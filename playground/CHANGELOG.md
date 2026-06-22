@@ -809,3 +809,8 @@
 - u-208: add utility (bg #65a30d, pad 208px)
 - u-209: add utility (bg #ea580c, pad 209px)
 - u-210: add utility (bg #0d9488, pad 210px)
+- u-211: add utility (bg #2563eb, pad 211px)
+- u-212: add utility (bg #16a34a, pad 212px)
+- u-213: add utility (bg #dc2626, pad 213px)
+- u-214: add utility (bg #d97706, pad 214px)
+- u-215: add utility (bg #7c3aed, pad 215px)
