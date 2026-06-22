@@ -886,3 +886,4 @@
 - u-285: add utility (bg #7c3aed, pad 285px)
 - u-286: add utility (bg #0891b2, pad 286px)
 - u-287: add utility (bg #db2777, pad 287px)
+- u-288: add utility (bg #65a30d, pad 288px)
