@@ -9,25 +9,25 @@ export type FriendlyError = { title: string; message: string };
 const MAP: Array<[RegExp, FriendlyError]> = [
   // --- claiming a tile / contested ground ---
   [/must be adjacent/i, {
-    title: "Ground Out of Reach",
-    message: "You can only seize a tile that borders ground your banner already holds. Pick a tile orthogonally adjacent to your territory.",
+    title: "Too Far Away",
+    message: "You can only claim a tile that's right next to one you already own. Pick a tile touching your territory.",
   }],
   [/already your team/i, {
     title: "Already Yours",
-    message: "This tile already flies your banner — there is nothing here to take.",
+    message: "You already own this tile — nothing to claim here.",
   }],
   [/out of bounds/i, {
-    title: "Beyond the Map",
-    message: "That tile lies outside the battlefield. Choose a tile within the 80×80 field.",
+    title: "Off the Map",
+    message: "That tile is outside the map. Pick a tile within the 80×80 grid.",
   }],
   // --- energy / treasury ---
   [/not enough energy/i, {
-    title: "Energy Spent",
-    message: "You lack the LUX to seal this claim. Buy LUX in the Treasury — energy refills 1 LUX every 20 minutes.",
+    title: "Not Enough Energy",
+    message: "You're out of LUX for this claim. Buy more in Your Wallet above, or wait — it refills for free, 1 LUX every 20 minutes.",
   }],
   [/in cooldown/i, {
-    title: "Catch Your Breath",
-    message: "You are in cooldown after your last move. Wait a moment before claiming again.",
+    title: "Wait a Moment",
+    message: "You just made a move — give it a few seconds before claiming again.",
   }],
   [/amount too small|bad amount|no value/i, {
     title: "Invalid Amount",
@@ -35,44 +35,44 @@ const MAP: Array<[RegExp, FriendlyError]> = [
   }],
   [/nothing to claim/i, {
     title: "Nothing to Claim",
-    message: "There is no score to claim from this battle.",
+    message: "There are no points to claim from this game.",
   }],
   // --- battlefield lifecycle / matchmaking ---
   [/battlefield not live|not live/i, {
-    title: "The War Has Ended",
-    message: "This battlefield is no longer live. Find or raise a new battlefield to keep fighting.",
+    title: "Game Has Ended",
+    message: "This game is no longer live. Join or start a new game to keep playing.",
   }],
   [/team full/i, {
-    title: "Banner Full",
-    message: "This banner has no room left. Try again — you'll be placed with the smallest banner.",
+    title: "Team Full",
+    message: "This team is full. Try again — you'll be placed on the smallest team.",
   }],
   [/already joined/i, {
-    title: "Already Enlisted",
-    message: "You have already joined this battlefield.",
+    title: "Already Joined",
+    message: "You've already joined this game.",
   }],
   [/join a team first|not in battlefield/i, {
-    title: "Join a Banner First",
-    message: "You must enlist on a battlefield before you can claim ground.",
+    title: "Join a Team First",
+    message: "You need to join a game before you can claim tiles.",
   }],
   [/max 3 concurrent|no free slot/i, {
-    title: "Stretched Too Thin",
-    message: "You are already fighting on three battlefields at once. Conclude one before joining another.",
+    title: "Too Many Games",
+    message: "You're already in three games at once. Finish one before joining another.",
   }],
   [/bad team/i, {
-    title: "Unknown Banner",
-    message: "That banner is not valid. Choose one of the four factions.",
+    title: "Invalid Team",
+    message: "That team doesn't exist. Choose one of the four teams.",
   }],
   [/not ended|not settled/i, {
-    title: "Not Yet Concluded",
-    message: "This war has not been settled yet. Seal the war first, then claim your score.",
+    title: "Game Not Settled Yet",
+    message: "This game hasn't been settled yet. Tap \"End Game\" first, then claim your points.",
   }],
   [/already claimed/i, {
-    title: "Score Already Claimed",
-    message: "You have already claimed your score from this battle.",
+    title: "Points Already Claimed",
+    message: "You've already claimed your points from this game.",
   }],
   [/forfeited/i, {
-    title: "Position Forfeited",
-    message: "You have left this battlefield and forfeited your standing here.",
+    title: "You Left This Game",
+    message: "You left this game, so your spot here no longer counts.",
   }],
   // --- wallet / network ---
   [/user rejected|user denied|rejected the request/i, {
@@ -110,7 +110,7 @@ export function friendlyError(raw: unknown): FriendlyError | null {
     .slice(0, 160)
     .trim();
   return {
-    title: "The Claim Was Refused",
+    title: "Action Failed",
     message: cleaned || "The transaction was rejected by the chain. Please try again.",
   };
 }

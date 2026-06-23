@@ -188,14 +188,18 @@ export default function WarRoom() {
         <div className="app-head">
           <h1 className="app-title font-display">War Room</h1>
           <p className="app-sub">Season {season?.toString() ?? "…"} · Celo Mainnet · Territory War</p>
+          <p className="app-help">
+            Claim tiles on the map to grow your team's territory. The more tiles
+            you hold when the war ends, the more points you score.
+          </p>
         </div>
 
         {!isConnected ? (
           <div className="panel gate">
             <div className="gate-numeral">✦</div>
             <p>
-              The battlefield admits no nameless soldier. Bind your wallet to join a
-              faction, claim tiles, and write your name into the season.
+              Connect your wallet to get started — pick a team, claim your first
+              tile, and start scoring points. It takes one tap.
             </p>
             <button className="btn-outline gold" onClick={openConnect}>Connect Wallet</button>
           </div>
@@ -203,9 +207,9 @@ export default function WarRoom() {
           <>
             {/* treasury */}
             <div className="panel">
-              <p className="panel-label">The Treasury</p>
+              <p className="panel-label">Your Wallet</p>
               <div className="row">
-                <span className="lbl">Wallet</span>
+                <span className="lbl">Address</span>
                 <span className="val">{address!.slice(0, 6)}…{address!.slice(-4)}</span>
               </div>
               <div className="row">
@@ -223,21 +227,30 @@ export default function WarRoom() {
                 </span>
               </div>
               <div className="row">
-                <span className="lbl">Energy · free / paid</span>
-                <span className="val">{energy ? `${energy[0]} / ${energy[1]} LUX` : "…"}</span>
+                <span className="lbl">
+                  Energy
+                  <span className="lbl-hint">spend this to claim tiles</span>
+                </span>
+                <span className="val">{energy ? `${energy[0] + energy[1]} LUX` : "…"}</span>
               </div>
               <div className="row">
-                <span className="lbl">Season standing</span>
-                <span className="val">{myScore !== undefined ? `${myScore} tiles held` : "…"}</span>
+                <span className="lbl">
+                  Your score
+                  <span className="lbl-hint">tiles you hold this season</span>
+                </span>
+                <span className="val">{myScore !== undefined ? `${myScore} tiles` : "…"}</span>
               </div>
 
+              <p className="board-note" style={{ margin: "14px 0 8px" }}>
+                Convert CELO into energy (LUX) to claim tiles
+              </p>
               <div className="field-row">
                 <input
                   className="input-dark" value={amount} inputMode="decimal" aria-label="CELO amount to spend"
                   onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))} placeholder="CELO"
                 />
                 <button className="btn-outline small gold" disabled={busy || !amountValid} onClick={buyLux}>
-                  Buy LUX
+                  Buy Energy
                 </button>
               </div>
               <div className="field-row">
@@ -247,10 +260,10 @@ export default function WarRoom() {
                 />
                 <button className="btn-outline small" disabled={busy || !luxOut || Number(luxOut) === 0}
                   onClick={() => write("withdrawLux", [BigInt(luxOut || "0")])}>
-                  Withdraw
+                  Cash Out
                 </button>
               </div>
-              <p className="board-note">1 CELO = 1,000 LUX · unused LUX returns to CELO at 1:1</p>
+              <p className="board-note">1 CELO = 1,000 LUX · unused energy converts back to CELO anytime</p>
               <button
                 className="btn-outline small"
                 style={{ width: "100%", marginTop: 14, opacity: 0.7 }}
@@ -263,11 +276,11 @@ export default function WarRoom() {
             {/* matchmaking */}
             {!joined && (
               <div className="panel">
-                <p className="panel-label">The Muster</p>
+                <p className="panel-label">Join a Game</p>
                 <p style={{ color: "var(--muted)", fontSize: 13, lineHeight: 1.8, margin: "0 0 6px" }}>
                   {joinable
-                    ? <>A war rages on battlefield <b style={{ color: "var(--ink)" }}>#{candidate}</b> — {players}/{CAPACITY} warriors under four banners. You will join the smallest banner to keep the war fair.</>
-                    : "No war rages at this hour. Raise a new battlefield, and others will rally to your banner."}
+                    ? <>Game <b style={{ color: "var(--ink)" }}>#{candidate}</b> is live — {players}/{CAPACITY} players across 4 teams. Tap below to join the smallest team, so it's fair for everyone.</>
+                    : "No game is live right now. Start one below — other players will be able to join you."}
                 </p>
                 {teamCounts && (
                   <div className="team-grid">
@@ -282,7 +295,7 @@ export default function WarRoom() {
                   </div>
                 )}
                 <button className="btn-outline gold" style={{ width: "100%" }} disabled={busy} onClick={findMatch}>
-                  {busy ? (joinable ? "Joining…" : "Raising Battlefield…") : joinable ? `⚔ Find Match — Join the ${TEAM_NAMES[smallestTeam]}` : "✦ Raise a Battlefield"}
+                  {busy ? (joinable ? "Joining…" : "Starting…") : joinable ? `Join the ${TEAM_NAMES[smallestTeam]} →` : "Start a New Game →"}
                 </button>
               </div>
             )}
@@ -290,19 +303,19 @@ export default function WarRoom() {
             {/* battlefield */}
             {joined && (
               <div className="panel">
-                <p className="panel-label">The Battlefield · #{bf}</p>
+                <p className="panel-label">Game Board · #{bf}</p>
                 <p style={{ color: "var(--muted)", fontSize: 12.5, lineHeight: 1.8, margin: "0 0 8px" }}>
-                  You march under the{" "}
+                  You're on team{" "}
                   <b style={{ color: TEAM_COLORS[Number(myTeam)], filter: "brightness(1.6)" }}>
                     {TEAM_NAMES[Number(myTeam)]}
-                  </b>{" "}
-                  banner. Other colours are the enemy. Tap a tile orthogonally adjacent to
-                  your ground to claim it.
+                  </b>
+                  . Tap any tile right next to one you already own to claim it — empty
+                  tiles cost less energy than tiles held by another team.
                 </p>
                 {energy && energy[0] + energy[1] === 0n && (
                   <p style={{ color: "var(--gold)", fontSize: 12, lineHeight: 1.7, margin: "0 0 10px" }}>
-                    ⚡ Your energy is spent — buy LUX in the Treasury above, or wait — free
-                    energy refills 1 LUX every 20 minutes automatically.
+                    ⚡ Out of energy. Buy more above in Your Wallet, or just wait — it
+                    refills for free, 1 LUX every 20 minutes.
                   </p>
                 )}
                 <div className="board" style={{ gridTemplateColumns: `repeat(${VIEW}, 1fr)` }}>
@@ -319,7 +332,7 @@ export default function WarRoom() {
                   })}
                 </div>
                 <p className="board-note">
-                  10×10 window of the 80×80 battlefield{busy ? " · the claim is being sealed…" : ""}
+                  Showing a 10×10 part of the full 80×80 map{busy ? " · claiming your tile…" : ""}
                 </p>
               </div>
             )}
@@ -330,33 +343,33 @@ export default function WarRoom() {
             {/* ended battles — settle & claim season score */}
             {endedBattles.length > 0 && (
               <div className="panel">
-                <p className="panel-label">Wars Concluded</p>
+                <p className="panel-label">Finished Games</p>
                 {endedBattles.map((b) => (
                   <div key={b.id.toString()} className="row" style={{ alignItems: "flex-start", gap: 10 }}>
                     <span style={{ fontSize: 12.5, lineHeight: 1.7 }}>
-                      <b style={{ color: "var(--ink)" }}>Battle #{b.id.toString()}</b>
+                      <b style={{ color: "var(--ink)" }}>Game #{b.id.toString()}</b>
                       <br />
                       <span style={{ color: "var(--muted)" }}>
                         {b.status === 2
                           ? (b.winningTeam
-                            ? <>The <b style={{ color: TEAM_COLORS[b.winningTeam], filter: "brightness(1.6)" }}>{TEAM_NAMES[b.winningTeam]}</b> banner triumphant</>
-                            : "Settled — no victor")
-                          : "The horn has sounded — awaiting judgement"}
-                        {" · "}you hold {b.held} tile{b.held === 1 ? "" : "s"}
+                            ? <>Team <b style={{ color: TEAM_COLORS[b.winningTeam], filter: "brightness(1.6)" }}>{TEAM_NAMES[b.winningTeam]}</b> won</>
+                            : "Ended — no winner")
+                          : "Time's up — needs settling"}
+                        {" · "}you held {b.held} tile{b.held === 1 ? "" : "s"}
                       </span>
                     </span>
                     <span style={{ flexShrink: 0 }}>
                       {b.status === 1 ? (
                         <button className="btn-outline small" disabled={busy}
                           onClick={() => write("settle", [b.id])}>
-                          Seal the War
+                          End Game
                         </button>
                       ) : b.claimed ? (
-                        <span style={{ color: "var(--gold)", fontSize: 11, letterSpacing: "0.1em" }}>Score claimed ✦</span>
+                        <span style={{ color: "var(--gold)", fontSize: 11, letterSpacing: "0.1em" }}>Points added ✦</span>
                       ) : b.held > 0 ? (
                         <button className="btn-outline small gold" disabled={busy}
                           onClick={() => write("claimMatchScore", [b.id])}>
-                          Claim {b.held} pts
+                          Get {b.held} pts
                         </button>
                       ) : (
                         <span style={{ color: "var(--faint)", fontSize: 11 }}>No tiles held</span>
@@ -365,7 +378,7 @@ export default function WarRoom() {
                   </div>
                 ))}
                 <p className="board-note">
-                  Settling judges the map · claiming adds your held tiles to your season rank
+                  "End Game" decides the winner · "Get points" adds your tiles to your season score
                 </p>
               </div>
             )}

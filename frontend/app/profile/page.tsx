@@ -53,15 +53,15 @@ export default function ProfilePage() {
           <div className="panel gate">
             <div className="gate-numeral">✦</div>
             <p>
-              No banner flies without a name. Bind your wallet to view your energy,
-              your tiles, and your place among the warriors.
+              Connect your wallet to see your energy, your tiles, and your
+              rank for this season.
             </p>
             <button className="btn-outline gold" onClick={openConnect}>Connect Wallet</button>
           </div>
         ) : (
           <>
             <div className="panel">
-              <p className="panel-label">The Warrior</p>
+              <p className="panel-label">Your Profile</p>
 
               <div className="profile-id">
                 <span className="profile-sigil">✦</span>
@@ -81,12 +81,15 @@ export default function ProfilePage() {
                 <span className="val">{wrongChain ? "Wrong network" : "Celo Mainnet"}</span>
               </div>
               <div className="row">
-                <span className="lbl">Energy · free / paid</span>
-                <span className="val">{energy ? `${energy[0]} / ${energy[1]} LUX` : "…"}</span>
+                <span className="lbl">
+                  Energy
+                  <span className="lbl-hint">spend this to claim tiles</span>
+                </span>
+                <span className="val">{energy ? `${energy[0] + energy[1]} LUX` : "…"}</span>
               </div>
               <div className="row">
-                <span className="lbl">Season standing</span>
-                <span className="val">{myScore !== undefined ? `${myScore} tiles held` : "…"}</span>
+                <span className="lbl">Your score</span>
+                <span className="val">{myScore !== undefined ? `${myScore} tiles` : "…"}</span>
               </div>
               <div className="row">
                 <span className="lbl">Rank this season</span>
@@ -103,9 +106,9 @@ export default function ProfilePage() {
             </div>
 
             <div className="panel">
-              <p className="panel-label">The Banner</p>
+              <p className="panel-label">Keep Playing</p>
               <p className="board-note" style={{ textAlign: "left", margin: "0 0 14px" }}>
-                Return to the field to claim ground, or study where you stand among the season&apos;s warriors.
+                Jump back into the game, or see how you stack up against other players.
               </p>
               <div className="field-row">
                 <Link href="/app" className="btn-outline gold" style={{ width: "100%" }}>▶ War Room</Link>

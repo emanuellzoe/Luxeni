@@ -1023,6 +1023,9 @@ body.has-side-nav .app-shell {
   text-shadow: 0 0 26px rgba(255, 255, 255, 0.22);
 }
 .app-sub { margin: 10px 0 0; font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--faint); }
+.app-help { margin: 12px auto 0; max-width: 380px; font-size: 13px; line-height: 1.7; color: var(--muted); }
+
+.lbl-hint { display: block; font-size: 10px; color: var(--faint); margin-top: 2px; letter-spacing: 0.02em; text-transform: none; }
 
 .panel {
   position: relative;
