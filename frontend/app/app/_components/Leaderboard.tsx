@@ -19,12 +19,12 @@ export function LeaderboardPanel({ season, me, refresh }: { season?: number; me?
 
   return (
     <div className="panel">
-      <p className="panel-label">The Rolls of Glory</p>
+      <p className="panel-label">Top Players</p>
       {err && <p className="board-note">leaderboard offline</p>}
       {!data && !err && <p className="board-note">…</p>}
       {data && (
         <>
-          {data.top.length === 0 && <p className="board-note">No names yet. Be the first to hold ground.</p>}
+          {data.top.length === 0 && <p className="board-note">No scores yet — be the first to claim a tile.</p>}
           {data.top.map((r) => (
             <div key={r.user} className="row" style={{ opacity: me && r.user === me.toLowerCase() ? 1 : 0.85 }}>
               <span className="lbl">#{r.rank} · {r.user.slice(0, 6)}…{r.user.slice(-4)}</span>
@@ -53,13 +53,13 @@ export function TeamStandings({ bf, refresh }: { bf: number; refresh?: number })
   }, [bf, refresh]);
   if (!teams) return (
     <div className="panel">
-      <p className="panel-label">Banners of Battlefield #{bf}</p>
-      <p className="board-note">Summoning banners…</p>
+      <p className="panel-label">Teams in Game #{bf}</p>
+      <p className="board-note">Loading teams…</p>
     </div>
   );
   return (
     <div className="panel">
-      <p className="panel-label">Banners of Battlefield #{bf}</p>
+      <p className="panel-label">Teams in Game #{bf}</p>
       <div className="team-grid">
         {teams.map((t) => (
           <div key={t.team} className="team-cell" style={{ borderTopColor: TEAM_COLORS[t.team] }}>
@@ -85,8 +85,8 @@ export function FullBoard({ bf, refresh }: { bf: number; refresh?: number }) {
   }, [bf, refresh]);
   if (!tiles) return (
     <div className="panel">
-      <p className="panel-label">The War, Entire · #{bf}</p>
-      <p className="board-note">Rendering the battlefield…</p>
+      <p className="panel-label">Full Map · Game #{bf}</p>
+      <p className="board-note">Loading map…</p>
     </div>
   );
 
@@ -95,7 +95,7 @@ export function FullBoard({ bf, refresh }: { bf: number; refresh?: number }) {
 
   return (
     <div className="panel">
-      <p className="panel-label">The War, Entire · #{bf}</p>
+      <p className="panel-label">Full Map · Game #{bf}</p>
       <div
         style={{
           display: "grid",
@@ -110,7 +110,7 @@ export function FullBoard({ bf, refresh }: { bf: number; refresh?: number }) {
           <div key={i} style={{ background: TEAM_COLORS[team] }} />
         ))}
       </div>
-      <p className="board-note">{tiles.length} tiles claimed · full {W}×{W}, served by the indexer</p>
+      <p className="board-note">{tiles.length} tiles claimed so far on the full {W}×{W} map</p>
     </div>
   );
 }

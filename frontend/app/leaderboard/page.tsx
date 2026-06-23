@@ -95,14 +95,14 @@ export default function LeaderboardPage() {
       <div className="fx-noise" />
       <div className="section-inner prose-section" style={{ position: "relative", zIndex: 2 }}>
         <div className="section-head" style={{ marginBottom: 36 }}>
-          <p className="kicker">The Rolls of Glory</p>
+          <p className="kicker">Rankings</p>
           <h1 className="section-title font-display" style={{ fontSize: "clamp(30px, 6vw, 48px)" }}>
             Leaderboard
           </h1>
           <span className="ornament">✦</span>
           <p className="section-blurb">
-            Warriors ranked by the territory they hold across the season. Every tile
-            held when a war is settled is one point toward your name.
+            Players ranked by how many tiles they hold this season. Every tile
+            you still hold when a game ends adds one point to your score.
           </p>
           <Link href="/app" className="btn-outline gold">▶ Enter the War Room</Link>
         </div>
@@ -125,7 +125,7 @@ export default function LeaderboardPage() {
         <div className="panel">
           <div className="lb-head">
             <p className="panel-label" style={{ margin: 0 }}>
-              Season {shownSeason ?? "…"} · Top Warriors
+              Season {shownSeason ?? "…"} · Top Players
             </p>
             {updatedAt && !err && (
               <span className="lb-live" title={`Updated ${new Date(updatedAt).toLocaleTimeString()}`}>
@@ -145,7 +145,7 @@ export default function LeaderboardPage() {
 
           {err && (
             <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-              <p className="board-note" style={{ margin: 0 }}>The rolls are offline — the indexer cannot be reached.</p>
+              <p className="board-note" style={{ margin: 0 }}>Couldn't load the leaderboard right now.</p>
               <button
                 className="btn-outline small"
                 onClick={() => { setErr(""); setLoading(true); setRetryTick((n) => n + 1); }}
@@ -154,12 +154,12 @@ export default function LeaderboardPage() {
               </button>
             </div>
           )}
-          {loading && !err && <p className="board-note">Summoning the rolls…</p>}
+          {loading && !err && <p className="board-note">Loading leaderboard…</p>}
 
           {!loading && !err && data && (
             <>
               {data.top.length === 0 ? (
-                <p className="board-note">No names yet. Be the first to hold ground.</p>
+                <p className="board-note">No scores yet — be the first to claim a tile.</p>
               ) : (
                 <div className="lb-list">
                   {data.top.map((r) => {
@@ -200,8 +200,8 @@ export default function LeaderboardPage() {
 
               {data.top.length > 0 && (
                 <p className="board-note">
-                  Showing the top {data.top.length} · served by the indexer
-                  {!me && " · connect your wallet to find your rank"}
+                  Showing the top {data.top.length}
+                  {!me && " · connect your wallet to see your rank"}
                 </p>
               )}
             </>
