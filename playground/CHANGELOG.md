@@ -989,3 +989,8 @@
 - u-388: add utility (bg #65a30d, pad 388px)
 - u-389: add utility (bg #ea580c, pad 389px)
 - u-390: add utility (bg #0d9488, pad 390px)
+- u-391: add utility (bg #2563eb, pad 391px)
+- u-392: add utility (bg #16a34a, pad 392px)
+- u-393: add utility (bg #dc2626, pad 393px)
+- u-394: add utility (bg #d97706, pad 394px)
+- u-395: add utility (bg #7c3aed, pad 395px)
