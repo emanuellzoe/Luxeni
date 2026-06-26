@@ -974,3 +974,4 @@
 - u-373: add utility (bg #dc2626, pad 373px)
 - u-374: add utility (bg #d97706, pad 374px)
 - u-375: add utility (bg #7c3aed, pad 375px)
+- u-376: add utility (bg #0891b2, pad 376px)
