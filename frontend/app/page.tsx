@@ -56,13 +56,23 @@ export default function Landing() {
         <div className="fx-noise" />
 
         <div className="hero-content">
-          <p className="kicker hero-kicker">On-chain Territory War · Celo</p>
+          <p className="kicker hero-kicker">
+            <span className="kicker-live" aria-hidden="true" />
+            On-chain Territory War · Celo Mainnet
+          </p>
           <h1 className="hero-title">LUXENI</h1>
           <p className="hero-tagline">
             Four factions. One battlefield. Spend energy to claim the land tile by tile —
             <b> every claim is a real transaction on Celo</b>. Hold your ground until the
             horn sounds, and let the territory crown its ruler.
           </p>
+
+          <div className="hero-cta">
+            <button className="btn-primary" onClick={enterBattle}>
+              {isConnected ? "Enter War Room →" : "Play Now — Free to Join"}
+            </button>
+            <a href="#how" className="btn-outline small">How it works ↓</a>
+          </div>
 
           <div className="trinity">
             <div className="trinity-item">
@@ -91,6 +101,28 @@ export default function Landing() {
                 and your Keepsake.
               </p>
               <Link href="/#roadmap" className="btn-outline small">The Campaign</Link>
+            </div>
+          </div>
+
+          <div className="hero-stats" aria-label="Live statistics">
+            <div className="hstat">
+              <span className="hstat-num">10,600+</span>
+              <span className="hstat-lbl">Transactions</span>
+            </div>
+            <div className="hstat-sep" aria-hidden="true" />
+            <div className="hstat">
+              <span className="hstat-num">408+</span>
+              <span className="hstat-lbl">Players</span>
+            </div>
+            <div className="hstat-sep" aria-hidden="true" />
+            <div className="hstat">
+              <span className="hstat-num">6,400</span>
+              <span className="hstat-lbl">Tiles / Battle</span>
+            </div>
+            <div className="hstat-sep" aria-hidden="true" />
+            <div className="hstat">
+              <span className="hstat-num">Season 1</span>
+              <span className="hstat-lbl">Live Now</span>
             </div>
           </div>
         </div>
@@ -135,10 +167,10 @@ export default function Landing() {
 
           <Reveal delay={160}>
             <p className="intro-lore">
-              “Beneath a darkened sky, four banners contest a single field of 6,400 tiles.
+              Beneath a darkened sky, four banners contest a single field of 6,400 tiles.
               There are no dice and no fate here — only energy, position, and the will to
               hold. One deposit arms you for hundreds of claims; what your hand seizes,
-              your hand must defend.”
+              your hand must defend.
             </p>
           </Reveal>
 
@@ -169,6 +201,7 @@ export default function Landing() {
           <div className="cards">
             <Reveal>
               <article className="card">
+                <div className="card-icon" aria-hidden="true">⚡</div>
                 <div className="card-numeral">I</div>
                 <h3 className="card-title">The Energy of War — LUX</h3>
                 <p className="card-text">
@@ -181,6 +214,11 @@ export default function Landing() {
             </Reveal>
             <Reveal delay={120}>
               <article className="card">
+                <div className="card-icon" aria-hidden="true" style={{ display: "flex", gap: 3, width: "fit-content" }}>
+                  {[1,2,3,4].map(t => (
+                    <span key={t} style={{ width: 11, height: 11, background: TEAM_COLORS[t], display: "inline-block", opacity: 0.85, borderRadius: 2 }} />
+                  ))}
+                </div>
                 <div className="card-numeral">II</div>
                 <h3 className="card-title">Four Factions, One Field</h3>
                 <p className="card-text">
@@ -193,6 +231,7 @@ export default function Landing() {
             </Reveal>
             <Reveal delay={240}>
               <article className="card">
+                <div className="card-icon" aria-hidden="true">✦</div>
                 <div className="card-numeral">III</div>
                 <h3 className="card-title">Seasons &amp; Keepsakes</h3>
                 <p className="card-text">
