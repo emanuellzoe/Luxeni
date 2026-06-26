@@ -943,3 +943,4 @@
 - u-342: add utility (bg #16a34a, pad 342px)
 - u-343: add utility (bg #dc2626, pad 343px)
 - u-344: add utility (bg #d97706, pad 344px)
+- u-345: add utility (bg #7c3aed, pad 345px)
