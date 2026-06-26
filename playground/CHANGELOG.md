@@ -913,3 +913,4 @@
 - u-312: add utility (bg #16a34a, pad 312px)
 - u-313: add utility (bg #dc2626, pad 313px)
 - u-314: add utility (bg #d97706, pad 314px)
+- u-315: add utility (bg #7c3aed, pad 315px)
