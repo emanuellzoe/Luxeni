@@ -980,3 +980,4 @@
 - u-379: add utility (bg #ea580c, pad 379px)
 - u-380: add utility (bg #0d9488, pad 380px)
 - u-381: add utility (bg #2563eb, pad 381px)
+- u-382: add utility (bg #16a34a, pad 382px)
