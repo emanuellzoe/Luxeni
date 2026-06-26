@@ -946,3 +946,4 @@
 - u-345: add utility (bg #7c3aed, pad 345px)
 - u-346: add utility (bg #0891b2, pad 346px)
 - u-347: add utility (bg #db2777, pad 347px)
+- u-348: add utility (bg #65a30d, pad 348px)
