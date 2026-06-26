@@ -959,3 +959,4 @@
 - u-358: add utility (bg #65a30d, pad 358px)
 - u-359: add utility (bg #ea580c, pad 359px)
 - u-360: add utility (bg #0d9488, pad 360px)
+- u-361: add utility (bg #2563eb, pad 361px)
