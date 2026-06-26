@@ -909,3 +909,4 @@
 - u-308: add utility (bg #65a30d, pad 308px)
 - u-309: add utility (bg #ea580c, pad 309px)
 - u-310: add utility (bg #0d9488, pad 310px)
+- u-311: add utility (bg #2563eb, pad 311px)
