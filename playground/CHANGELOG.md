@@ -916,3 +916,4 @@
 - u-315: add utility (bg #7c3aed, pad 315px)
 - u-316: add utility (bg #0891b2, pad 316px)
 - u-317: add utility (bg #db2777, pad 317px)
+- u-318: add utility (bg #65a30d, pad 318px)
